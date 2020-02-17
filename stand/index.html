@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+    <style>
+        html,
+        body,
+        #root {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            margin: 20px 0;
+            height: 100%;
+            max-width: 500px !important;
+        }
+
+        .item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 48px;
+
+        }
+
+        .item > * {
+            margin-bottom: 20px;
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="../node_modules/@waves/signer/dist/signer.min.js"></script>
+    <script src="../dist/provider-ledger.js"></script>
+    <script>
+        var url = 'https://127.0.0.1:8081/iframe-entry';
+        var node = location.href.includes('mainnet')
+            ? 'https://nodes.wavesplatform.com'
+            : 'https://pool.testnet.wavesnodes.com';
+
+        var provider = new providerLedger.ProviderLedger(url);
+        var waves = new signer.Signer({NODE_URL: node});
+
+        waves.setProvider(provider);
+
+    </script>
+</head>
+
+<body style="background-color: rgb(35, 35, 39); color: white">
+<div class="container">
+    <div class="item">
+        <h1>Clear</h1>
+        <button class="btn btn-primary" onclick="localStorage.clear()">Clear storage</button>
+    </div>
+    <div class="item">
+        <h1>Login</h1>
+        <button class="btn btn-primary " onclick="waves.login();">Login</button>
+    </div>
+    <div class="item">
+        <h1>Transfer</h1>
+        <button class="btn btn-primary " onclick="waves
+        .transfer({
+            amount: 1,
+            recipient: '3N1NBFueebLrzx9nE4xdtkf7FLqwrnL3kNB',
+            senderPublicKey:'3cG49f4wWF1jhqS1JWUtACqYYXsYGUcGEfo4X5zgH3V9'
+        })
+        .broadcast()"
+        >Do it
+        </button>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,106 @@
+{
+  "name": "@wavesplatform/provider-ladger",
+  "version": "0.1.2",
+  "main": "dist/provider-ladger.min.js",
+  "types": "dist/provider/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/waves-exchange/provider-ladger.git"
+  },
+  "bugs": {
+    "url": "https://github.com/waves-exchange/provider-ladger/issues"
+  },
+  "scripts": {
+    "watch": "webpack --watch",
+    "postversion": "npm publish",
+    "prepublish": "npm run build",
+    "prettier": "prettier --ignore-path .gitignore \"./src/**/*.+(ts|tsx)\"",
+    "format": "npm run prettier -- --write",
+    "check-format": "npm run prettier -- --list-different",
+    "start": "http-server ./ -p 8081",
+    "start-https": "http-server ./ -p 8081 -S",
+    "build": "npm run clean && webpack",
+    "clean": "rm -rf ./dist && rm -rf ./iframe-entry/dist",
+    "test": "jest",
+    "test:c": "jest --coverage",
+    "test:d": "node --inspect-brk ./node_modules/jest/bin/jest.js --runInBand --watch",
+    "test:w": "jest --watch"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && npm test",
+      "post-commit": "git update-index --again"
+    }
+  },
+  "files": [
+    "dist",
+    "stand",
+    "iframe-entry"
+  ],
+  "lint-staged": {
+    "src/**/*.ts?(x)": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "@emotion/core": "^10.0.22",
+    "@emotion/styled": "^10.0.23",
+    "@ledgerhq/hw-transport-u2f": "^5.9.0",
+    "@popperjs/core": "^2.0.0-rc.1",
+    "@styled-system/css": "^5.1.4",
+    "@styled-system/should-forward-prop": "^5.1.4",
+    "@types/ramda": "^0.26.38",
+    "@types/react": "^16.9.15",
+    "@types/react-dom": "^16.9.4",
+    "@types/styled-system": "^5.1.4",
+    "@waves.exchange/react-uikit": "^0.4.1",
+    "@waves/bignumber": "0.0.1",
+    "@waves/ledger": "^3.5.1",
+    "@waves/node-api-js": "0.0.3",
+    "@waves/oracle-data": "0.0.6",
+    "@waves/signer": "0.0.8",
+    "@waves/ts-types": "^0.3.0",
+    "@waves/waves-browser-bus": "^0.2.3",
+    "@waves/waves-transactions": "^3.20.2",
+    "data-service": "^1.5.5",
+    "emotion-theming": "^10.0.19",
+    "ramda": "^0.26.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "styled-system": "^5.1.4",
+    "ts-api-validator": "^3.0.1",
+    "ts-utils": "^6.0.7",
+    "tslib": "^1.10.0",
+    "typed-ts-events": "^1.0.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.1.1",
+    "@types/ledgerhq__hw-transport-u2f": "^4.21.1",
+    "@types/styled-system__css": "^5.0.4",
+    "@typescript-eslint/eslint-plugin": "^2.10.0",
+    "@typescript-eslint/parser": "^2.10.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "eslint": "^6.7.2",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-jest": "^23.6.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-react": "^7.17.0",
+    "eslint-plugin-react-hooks": "^2.3.0",
+    "html-webpack-plugin": "^3.2.0",
+    "http-server": "^0.12.0",
+    "husky": "^3.1.0",
+    "jest": "^25.1.0",
+    "less-loader": "^5.0.0",
+    "lint-staged": "^9.5.0",
+    "prettier": "^1.19.1",
+    "ts-jest": "^25.1.0",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.2",
+    "uri-js": "^4.2.2",
+    "webpack": "^4.41.4",
+    "webpack-cli": "^3.3.10"
+  }
+}
