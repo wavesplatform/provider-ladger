@@ -51,7 +51,7 @@
         var url = 'https://127.0.0.1:8081/iframe-entry';
         var node = location.href.includes('mainnet')
             ? 'https://nodes.wavesplatform.com'
-            : 'https://pool.testnet.wavesnodes.com';
+            : 'https://nodes-testnet.wavesnodes.com';
 
         var provider = new providerLedger.ProviderLedger(url);
         var waves = new signer.Signer({NODE_URL: node});
