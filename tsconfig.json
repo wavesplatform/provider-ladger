@@ -7,16 +7,16 @@
     "outDir": "./dist",
     "strict": true,
     "jsx": "react",
-    "moduleResolution": "node",
-    "allowJs": false,
-    "importHelpers": true,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitThis": true,
-    "skipDefaultLibCheck": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": false,
-    "esModuleInterop": true
-  }
+    "jsxFactory": "h",
+    "noImplicitAny": false
+  },
+  "include": [
+    "src_provider"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "../waves-js",
+    "src"
+  ]
 }
