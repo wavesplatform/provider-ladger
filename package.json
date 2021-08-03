@@ -1,6 +1,6 @@
 {
   "name": "@waves/provider-ledger",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "main": "dist/provider-ledger.js",
   "types": "dist/index.d.ts",
   "repository": {
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@ledgerhq/hw-transport-webusb": "^6.2.0",
-    "@waves/ledger": "4.0.1-beta.1",
+    "@waves/ledger": "4.0.2-beta.3",
     "@types/ramda": "^0.26.38",
     "@waves/signer": "1.0.2",
     "@waves/ts-types": "^0.3.0",
