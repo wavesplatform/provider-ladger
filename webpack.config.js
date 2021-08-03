@@ -1,4 +1,5 @@
-const { resolve } = require('path');
+const path = require('path');
+const resolve = path.resolve;
 
 module.exports = [
     {
@@ -10,6 +11,24 @@ module.exports = [
                     test: /\.ts/,
                     use: 'ts-loader',
                     exclude: /node_modules/,
+                },
+                {
+                    test: /\.less$/,
+                    use: [
+                        // conf.mode === 'production' ? MiniCssExtractPlugin.loader : 
+                        { loader: "style-loader" },
+                        {
+                            loader: "css-loader",
+                            options: {
+                                modules: true,
+                                localIdentName: '[folder]__[local]--[hash:base64:5]',
+                            }
+                        },
+                        {
+                            loader: "less-loader",
+                            options: { root: path.resolve(__dirname, './') }
+                        },
+                    ]
                 },
             ],
         },
