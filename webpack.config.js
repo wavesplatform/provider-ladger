@@ -1,5 +1,11 @@
+const webpack = require("webpack");
 const path = require('path');
 const resolve = path.resolve;
+
+const time = new Date().toLocaleDateString('ru', { hour: 'numeric', minute: 'numeric', second: 'numeric' });
+const definePLugin = new webpack.DefinePlugin({
+    VERSION: time,
+});
 
 module.exports = [
     {

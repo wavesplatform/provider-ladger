@@ -5,12 +5,10 @@ import {
     Handler,
     Provider,
     SignerTx,
-    SignedTx,
     TypedData,
     UserData,
 } from '@waves/signer';
 import { IUser, WavesLedgerSync, IWavesLedgerConfig } from '@waves/ledger';
-import { IWithId } from '@waves/ts-types';
 import { libs, makeTx, makeTxBytes, signTx } from '@waves/waves-transactions';
 // import { Waves } from '@waves/ledger/lib/Waves';
 import { signerTx2TxParams } from "./helpers";
@@ -21,9 +19,8 @@ import {
 } from "./ui";
 import {
     IProviderLedgerConfig,
+    ProviderSignedTx,
 } from './ProviderLedger.interface';
-
-type TLong = any;
 
 const DEFAULT_PROVIDER_CONFIG = {
     debug: false,
@@ -59,18 +56,21 @@ export class ProviderLedger implements Provider {
 
     public sign(
         list: Array<SignerTx>
-    ): Promise<Array<SignedTx<TLong> & IWithId>> {
+    ): Promise<Array<ProviderSignedTx>> {
         this.__log('sign', list);
 
         return Promise.all(
-            list.map((tx: any): Promise<any> => {
+            list.map((tx: SignerTx): Promise<any> => {
+                const txId: string = '';
+                const publicKey: string = (this.user?.publicKey as string);
+
                 signTxDialog(tx);
 
                 const txParams = signerTx2TxParams(tx);
 
                 const dataBuffer = makeTxBytes({
                     ...txParams,
-                    senderPublicKey: (this.user?.publicKey as string),
+                    senderPublicKey: publicKey,
                 });
 
                 const data2sign = {
@@ -86,9 +86,23 @@ export class ProviderLedger implements Provider {
                 };
 
                 return this._wavesLedger!.signTransaction(this.user!.id, data2sign)
-                    .then((tx) => {
+                    .then((proof: string): any => {
+                        const proofs = (tx.proofs || []);
+
+                        proofs.push(proof);
+
+                        let signedTx: any = {
+                            id: txId,
+                            senderPublicKey: publicKey,
+
+                            // original
+                            ...tx,
+                            proofs: proofs
+                        };
+
                         closeDialog();
-                        return tx;
+
+                        return signedTx;
                     });
             })
         ) as any;
