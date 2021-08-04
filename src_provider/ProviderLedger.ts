@@ -94,6 +94,7 @@ export class ProviderLedger implements Provider {
                             senderPublicKey: publicKey,
 
                             // original
+                            ...txParams,
                             ...tx,
                             proofs: proofs
                         };
