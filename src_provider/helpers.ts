@@ -6,7 +6,7 @@ import { ITransferParams, IInvokeScriptParams, WithSender } from '@waves/waves-t
 type TxParams = ITransferParams | IInvokeScriptParams;
 type TTxType = 4 | 16;
 
-export const signerTx2TxParams = (signerTx: SignerTx): ITransferParams & { type: TTxType, version: number }=> {
+export const signerTx2TxParams = (signerTx: SignerTx): ITransferParams & { type: TTxType, version: number } => {
     let tx;
 
     switch (signerTx.type) {
@@ -14,9 +14,9 @@ export const signerTx2TxParams = (signerTx: SignerTx): ITransferParams & { type:
             tx = {
                 // default values
                 timestamp: Date.now(),
-                fee: 1,
+                fee: 0.001, // todo from node
                 attachment: "",
-                version: 2,
+                version: 2, // todo check default version
                 // 
                 ...signerTx,
                 type: (signerTx.type as TTxType), // todo
@@ -24,7 +24,9 @@ export const signerTx2TxParams = (signerTx: SignerTx): ITransferParams & { type:
             break;
         case 16:
             tx = {
-                version: 2,
+                timestamp: Date.now(),
+                fee: 0.001, // todo from node
+                version: 2, // todo check default version
                 ...signerTx,
                 type: (signerTx.type as TTxType), // todo
             };
