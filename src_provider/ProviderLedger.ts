@@ -61,17 +61,15 @@ export class ProviderLedger implements Provider {
 
         return Promise.all(
             list.map((tx: SignerTx): Promise<any> => {
-                const txId: string = '';
                 const publicKey: string = (this.user?.publicKey as string);
-
-                signTxDialog(tx);
-
                 const txParams = signerTx2TxParams(tx);
-
+                // const signedTx = signTx(txParams, publicKey);
                 const dataBuffer = makeTxBytes({
                     ...txParams,
                     senderPublicKey: publicKey,
                 });
+
+                signTxDialog(tx);
 
                 const data2sign = {
                     dataType: txParams.type,
@@ -92,7 +90,7 @@ export class ProviderLedger implements Provider {
                         proofs.push(proof);
 
                         let signedTx: any = {
-                            id: txId,
+                            // id: signedTx.id,
                             senderPublicKey: publicKey,
 
                             // original
