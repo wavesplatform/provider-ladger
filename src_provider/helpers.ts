@@ -26,7 +26,7 @@ export const signerTx2TxParams = (signerTx: SignerTx): ITransferParams & { type:
             tx = {
                 timestamp: Date.now(),
                 fee: 500000, // todo from node
-                feeAssetId: null,
+                // feeAssetId: null,
                 version: 2, // todo check default version
                 ...signerTx,
                 type: (signerTx.type as TTxType), // todo
