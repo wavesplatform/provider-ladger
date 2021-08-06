@@ -150,23 +150,31 @@ export class ProviderLedger implements Provider {
             closeDialog();
             showConnectionDialog();
 
-            return this.initWavesLedger()
+            let resolveFn: (data: UserData) => void;
+            let rejectFn: (data: UserData) => void;
+
+            const UserDataPromise = new Promise<UserData>((resolve, reject) => {
+                resolveFn = resolve;
+                rejectFn = reject;
+            });
+
+            this.initWavesLedger()
                 .then(() => {
                     return this.awaitingWavesApp()
                         .then((ready) => {
 
                             if(!ready) {
                                 closeDialog();
-                                showConnectionErrorDialog(() => {
-                                    return this.login();
+                                return showConnectionErrorDialog(() => {
+                                    this.login().then(resolveFn);
                                 });
-
-                                throw 'Provider login awaiting error';
                             } else {
-                                return this.login();
+                                return this.login().then(resolveFn);
                             }
                         });
                 });
+
+            return UserDataPromise;
         }
 
         this.__log('login');
@@ -176,7 +184,7 @@ export class ProviderLedger implements Provider {
             .then((user) => {
                 this.user =  user;
 
-                this.__log('login :: user');
+                this.__log('login :: user', this.user);
                 return (user as UserData);
             });
     }
