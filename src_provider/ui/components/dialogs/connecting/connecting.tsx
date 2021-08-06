@@ -30,9 +30,11 @@ export class ConnectingComponent extends React.Component<IConnectingProps, IConn
             <div className={styles.container}>
                 <div>Подключение...</div>
                 <br />
-                <div>Подключите устройство Ledger</div>
-                <div>Введите ваш pin-code</div>
-                <div>Откройте приложение WAVES</div>
+                <ul>
+                    <li>Подключите устройство Ledger</li>
+                    <li>Введите ваш pin-code</li>
+                    <li>Откройте приложение WAVES</li>
+                </ul>
             </div>
         );
     }

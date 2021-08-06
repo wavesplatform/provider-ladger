@@ -13,17 +13,17 @@ import { libs, makeTx, makeTxBytes, signTx } from '@waves/waves-transactions';
 // import { Waves } from '@waves/ledger/lib/Waves';
 import { signerTx2TxParams } from "./helpers";
 import {
-    showConnecting as connectionDialog,
-    showConnectionError as connectionErrorDialog,
-    getUser as getUserDialog,
-    signTx as signTxDialog,
+    showConnecting as showConnectionDialog,
+    showConnectionError as showConnectionErrorDialog,
+    getUser as showGetUserDialog,
+    signTx as showSignTxDialog,
     closeDialog,
-    showConnectionError
 } from "./ui";
 import {
     IProviderLedgerConfig,
     ProviderSignedTx,
 } from './ProviderLedger.interface';
+import { takeLastWhile, then } from 'ramda';
 
 const DEFAULT_PROVIDER_CONFIG = {
     debug: false,
@@ -45,15 +45,18 @@ export class ProviderLedger implements Provider {
         NETWORK_BYTE: 'W'.charCodeAt(0),
         NODE_URL: 'https://nodes.wavesplatform.com',
     };
-    private _wavesLedger: WavesLedgerSync | null;
     private _ledgerConfig: IWavesLedgerConfig;
+
+    private _wavesLedger: WavesLedgerSync | null = null;
+    private _wavesLedgerConnection: any | null = null;
+    private _isWavesAppReady: boolean = false;
+    private _isWavesAppReadyPromise: Promise<boolean> | null = null;
 
     public user: IUser | null = null;
 
     constructor(config?: IProviderLedgerConfig) {
         this._providerConfig = config || DEFAULT_PROVIDER_CONFIG;
         this._ledgerConfig = config?.wavesLedgerConfig || DEFAULT_WAVES_LEDGER_CONFIG;
-        this._wavesLedger = null;
 
         this.__log('constructor');
     }
@@ -63,9 +66,8 @@ export class ProviderLedger implements Provider {
     ): Promise<Array<ProviderSignedTx>> {
         this.__log('sign', list);
 
-        if (!this.isLedgerConnected() || !this.user) {
-            return this.loginFlow()
-                .catch(() => { })
+        if (this.user === null) {
+            return this.login()
                 .then(() => {
                     return this.sign(list);
                 });
@@ -81,7 +83,8 @@ export class ProviderLedger implements Provider {
                     senderPublicKey: publicKey,
                 });
 
-                signTxDialog(tx);
+                closeDialog();
+                showSignTxDialog(tx);
 
                 const data2sign = {
                     dataType: txParams.type,
@@ -143,13 +146,34 @@ export class ProviderLedger implements Provider {
     }
 
     public login(): Promise<UserData> {
+        if(!this.isLedgerInited() || !this._isWavesAppReady) {
+            closeDialog();
+            showConnectionDialog();
+
+            return this.initWavesLedger()
+                .then(() => {
+                    return this.awaitingWavesApp()
+                        .then((ready) => {
+
+                            if(!ready) {
+                                closeDialog();
+                                showConnectionErrorDialog(() => {
+                                    return this.login();
+                                });
+
+                                throw 'Provider login awaiting error';
+                            } else {
+                                return this.login();
+                            }
+                        });
+                });
+        }
+
         this.__log('login');
 
-        return this.initWavesLedger()
-            .catch((er) => { throw er; })
-            .then(async () => {
-                const user: IUser = await getUserDialog(this._wavesLedger!);
-
+        closeDialog();
+        return showGetUserDialog(this._wavesLedger!)
+            .then((user) => {
                 this.user =  user;
 
                 this.__log('login :: user');
@@ -159,6 +183,8 @@ export class ProviderLedger implements Provider {
 
     public logout(): Promise<void> {
         this.__log('logout');
+
+        this.user = null;
 
         return Promise.resolve();
     }
@@ -190,57 +216,59 @@ export class ProviderLedger implements Provider {
         return this;
     }
 
-    private initWavesLedger(): Promise<void> {
+    private async initWavesLedger(): Promise<null> {
         this.__log('initWavesLedger');
-
-        // if (!this._wavesLedger) {
-        //     this._wavesLedger = new WavesLedgerSync(this._ledgerConfig);
-
-        //     return this._wavesLedger.tryConnect()
-        //         .then((res) => { console.log('initWavesLedger SUCCESS'); return res; })
-        //         .catch((er) => { console.log('initWavesLedger ERROR'); return er; });
-        // } else {
-        //     return Promise.resolve();
-        // }
 
         if (!this._wavesLedger) {
             this._wavesLedger = new WavesLedgerSync(this._ledgerConfig);
         }
 
-        return this._wavesLedger.tryConnect()
-            .then((res) => { console.log('initWavesLedger SUCCESS', res); return res; })
-            .catch((er) => { console.log('initWavesLedger ERROR', er); return er; });
+        if(this._wavesLedgerConnection === null) {
+            this._wavesLedgerConnection = await this._wavesLedger.tryConnect();
+        }
+
+        return null;
     }
 
-    private isLedgerConnected(): boolean {
+    private async awaitingWavesApp(): Promise<boolean> {
+        const TRY_COUNT = 3;
+        const TRY_DELAY = 5;
+
+        let count = 1;
+        let isAppReady = await this.isApplicationReady();
+
+        while(!isAppReady) {
+            if (count >= TRY_COUNT) {
+                return false;
+            }
+
+            count++;
+            await this.sleep(TRY_DELAY);
+            isAppReady = await this.isApplicationReady();
+        }
+
+        this._isWavesAppReady = true;
+        return true;
+    }
+
+    private isLedgerInited(): boolean {
         return this._wavesLedger !== null;
     }
 
-    private async loginFlow() {
-        this.__log('loginFlow');
+    private async isApplicationReady(): Promise<boolean> {
+        if(!this._isWavesAppReadyPromise) {
+            this._isWavesAppReadyPromise = this._wavesLedger!.probeDevice();
+        }
 
-        connectionDialog();
-
-        // todo sleep
-        await new Promise((resolve, reject) => { setTimeout(resolve, 1000)});
-
-        // if (this.user === null) {
-        //     this.login();
-        // }
-
-        closeDialog();
-
-        // return this.initWavesLedger()
-        return this.login()
-            // .then((res) => {
-            //     closeDialog();
-            //     console.log('Login flow SUCCESS', res);
-            // })
-            .catch((er) => {
-                closeDialog();
-                showConnectionError(() => { console.log('Login reconnect'); closeDialog();});
-                console.log('Login flow ERROR', er);
+        return this._isWavesAppReadyPromise!
+            .then((res) => {
+                this._isWavesAppReadyPromise = null;
+                return res;
             });
+    }
+
+    private async sleep(seconds: number): Promise<void> {
+        return new Promise((resolve, reject) => { setTimeout(resolve, seconds *1000); });
     }
 
     private __log(tag: string, ...args) {

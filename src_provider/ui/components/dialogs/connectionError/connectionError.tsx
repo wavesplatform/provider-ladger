@@ -27,11 +27,12 @@ export class ConnectionErrorComponent extends React.Component<IConnectionErrorPr
         return (
             <div className={styles.container}>
                 <div>Не удалось подключиться</div>
+                <br />
                 <button
                     className={styles.button}
                     onClick={this.onReconnect.bind(this)}
                 >
-                    login
+                    повторить попытку
                 </button>
             </div>
         );
