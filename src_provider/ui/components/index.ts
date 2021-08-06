@@ -1,2 +1,1 @@
-export * from "./login";
-export * from "./signTx";
+export * from "./dialogs";

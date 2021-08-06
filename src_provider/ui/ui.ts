@@ -3,8 +3,12 @@ import ReactDOM from "react-dom";
 
 import { IUser, WavesLedgerSync } from "@waves/ledger";
 import {
+    IConnectingProps,
+    IConnectionErrorProps,
     ILoginComponentProps,
     ISignTxComponentProps,
+    ConnectingComponent,
+    ConnectionErrorComponent,
     LoginComponent,
     SignTxComponent
 } from "./components"
@@ -79,15 +83,24 @@ export const getUser = async (ledger: WavesLedgerSync): Promise<IUser> => {
 export const signTx = async(tx: any): Promise<any> => {
     return new Promise((resolve, reject) => {
         const reactElement = React.createElement<ISignTxComponentProps>(SignTxComponent, {
-            // ledger: ledger,
-            // userId: userId,
             tx: tx,
-            // onSign: () => {
-            //     resolve({});
-            //     closeDialog();
-            // }
         });
 
         renderInContainer(reactElement);
     });
+}
+
+
+export const showConnecting = () => {
+    const reactElement = React.createElement<IConnectingProps>(ConnectingComponent);
+
+    renderInContainer(reactElement);
+}
+
+export const showConnectionError = (onReconnect) => {
+    const reactElement = React.createElement<IConnectionErrorProps>(ConnectionErrorComponent, {
+        onReconnect: onReconnect
+    });
+
+    renderInContainer(reactElement);
 }

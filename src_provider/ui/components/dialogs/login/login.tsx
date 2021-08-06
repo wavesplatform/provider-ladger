@@ -1,6 +1,6 @@
 import React from 'react';
 import { IUser, WavesLedgerSync } from '@waves/ledger';
-import { UserComponent } from "../user/user";
+import { UserComponent } from "../../user/user";
 
 import styles from "./styles.less";
 

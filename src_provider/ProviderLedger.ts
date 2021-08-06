@@ -13,9 +13,12 @@ import { libs, makeTx, makeTxBytes, signTx } from '@waves/waves-transactions';
 // import { Waves } from '@waves/ledger/lib/Waves';
 import { signerTx2TxParams } from "./helpers";
 import {
+    showConnecting as connectionDialog,
+    showConnectionError as connectionErrorDialog,
     getUser as getUserDialog,
     signTx as signTxDialog,
-    closeDialog
+    closeDialog,
+    showConnectionError
 } from "./ui";
 import {
     IProviderLedgerConfig,
@@ -37,6 +40,7 @@ const DEFAULT_WAVES_LEDGER_CONFIG: IWavesLedgerConfig = {
 
 export class ProviderLedger implements Provider {
     private _providerConfig: IProviderLedgerConfig;
+    // todo connect to network
     private _options: ConnectOptions = {
         NETWORK_BYTE: 'W'.charCodeAt(0),
         NODE_URL: 'https://nodes.wavesplatform.com',
@@ -58,6 +62,14 @@ export class ProviderLedger implements Provider {
         list: Array<SignerTx>
     ): Promise<Array<ProviderSignedTx>> {
         this.__log('sign', list);
+
+        if (!this.isLedgerConnected() || !this.user) {
+            return this.loginFlow()
+                .catch(() => { })
+                .then(() => {
+                    return this.sign(list);
+                });
+        }
 
         return Promise.all(
             list.map((tx: SignerTx): Promise<any> => {
@@ -101,6 +113,7 @@ export class ProviderLedger implements Provider {
 
                         closeDialog();
 
+                        this.__log('sign :: signed tx', signedTx);
                         return signedTx;
                     });
             })
@@ -133,11 +146,13 @@ export class ProviderLedger implements Provider {
         this.__log('login');
 
         return this.initWavesLedger()
+            .catch((er) => { throw er; })
             .then(async () => {
                 const user: IUser = await getUserDialog(this._wavesLedger!);
 
                 this.user =  user;
 
+                this.__log('login :: user');
                 return (user as UserData);
             });
     }
@@ -178,13 +193,54 @@ export class ProviderLedger implements Provider {
     private initWavesLedger(): Promise<void> {
         this.__log('initWavesLedger');
 
+        // if (!this._wavesLedger) {
+        //     this._wavesLedger = new WavesLedgerSync(this._ledgerConfig);
+
+        //     return this._wavesLedger.tryConnect()
+        //         .then((res) => { console.log('initWavesLedger SUCCESS'); return res; })
+        //         .catch((er) => { console.log('initWavesLedger ERROR'); return er; });
+        // } else {
+        //     return Promise.resolve();
+        // }
+
         if (!this._wavesLedger) {
             this._wavesLedger = new WavesLedgerSync(this._ledgerConfig);
-
-            return this._wavesLedger.tryConnect();
-        } else {
-            return Promise.resolve();
         }
+
+        return this._wavesLedger.tryConnect()
+            .then((res) => { console.log('initWavesLedger SUCCESS', res); return res; })
+            .catch((er) => { console.log('initWavesLedger ERROR', er); return er; });
+    }
+
+    private isLedgerConnected(): boolean {
+        return this._wavesLedger !== null;
+    }
+
+    private async loginFlow() {
+        this.__log('loginFlow');
+
+        connectionDialog();
+
+        // todo sleep
+        await new Promise((resolve, reject) => { setTimeout(resolve, 1000)});
+
+        // if (this.user === null) {
+        //     this.login();
+        // }
+
+        closeDialog();
+
+        // return this.initWavesLedger()
+        return this.login()
+            // .then((res) => {
+            //     closeDialog();
+            //     console.log('Login flow SUCCESS', res);
+            // })
+            .catch((er) => {
+                closeDialog();
+                showConnectionError(() => { console.log('Login reconnect'); closeDialog();});
+                console.log('Login flow ERROR', er);
+            });
     }
 
     private __log(tag: string, ...args) {
