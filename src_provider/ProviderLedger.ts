@@ -71,7 +71,25 @@ export class ProviderLedger implements Provider {
                 });
         }
 
-        return this._sign(list);
+        return new Promise(async (resolve, reject) => {
+            let isAppReady = await this.isWavesAppReady();
+
+            if(!isAppReady) {
+                closeDialog();
+                showConnectionDialog();
+
+                isAppReady = await this.awaitingWavesApp();
+            }
+
+            if (isAppReady) {
+                resolve(this._sign(list));
+            } else {
+                closeDialog();
+                return showConnectionErrorDialog(() => {
+                    return this.sign(list);
+                });
+            }
+        });
     }
 
     public signTypedData(data: Array<TypedData>): Promise<string> {
@@ -97,7 +115,7 @@ export class ProviderLedger implements Provider {
     }
 
     public login(): Promise<UserData> {
-        if(!this.isLedgerInited() || !this._isWavesAppReady) {
+        if(!this.isLedgerInited() /* || !this._isWavesAppReady*/) { // todo check App
             closeDialog();
             showConnectionDialog();
 
@@ -252,7 +270,7 @@ export class ProviderLedger implements Provider {
         const TRY_DELAY = 5;
 
         let count = 1;
-        let isAppReady = await this.isApplicationReady();
+        let isAppReady = await this.isWavesAppReady();
 
         while(!isAppReady) {
             if (count >= TRY_COUNT) {
@@ -261,7 +279,7 @@ export class ProviderLedger implements Provider {
 
             count++;
             await sleep(TRY_DELAY);
-            isAppReady = await this.isApplicationReady();
+            isAppReady = await this.isWavesAppReady();
         }
 
         this._isWavesAppReady = true;
@@ -272,16 +290,16 @@ export class ProviderLedger implements Provider {
         return this._wavesLedger !== null;
     }
 
-    private async isApplicationReady(): Promise<boolean> {
-console.log('isApplicationReady', 1);
+    private async isWavesAppReady(): Promise<boolean> {
+console.log('isWavesAppReady', 1);
         if(!this._isWavesAppReadyPromise) {
-            try {console.log('isApplicationReady', 2);
+            try {console.log('isWavesAppReady', 2);
                 this._isWavesAppReadyPromise = this._wavesLedger!.probeDevice();
-            } catch (er) {console.log('isApplicationReady', 3);
+            } catch (er) {console.log('isWavesAppReady', 3);
                 return Promise.resolve(false);
             }
         }
-        console.log('isApplicationReady', 4);
+        console.log('isWavesAppReady', 4);
         return this._isWavesAppReadyPromise!
             .then((res) => {
                 this._isWavesAppReadyPromise = null;
