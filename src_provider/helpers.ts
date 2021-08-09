@@ -38,3 +38,7 @@ export const signerTx2TxParams = (signerTx: SignerTx): ITransferParams & { type:
 
     return tx;
 };
+
+export const sleep = async (seconds: number): Promise<void> {
+    return new Promise((resolve, reject) => { setTimeout(resolve, seconds *1000); });
+};

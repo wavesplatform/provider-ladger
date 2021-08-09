@@ -11,7 +11,7 @@ import {
 import { IUser, WavesLedgerSync, IWavesLedgerConfig } from '@waves/ledger';
 import { libs, makeTx, makeTxBytes, signTx } from '@waves/waves-transactions';
 // import { Waves } from '@waves/ledger/lib/Waves';
-import { signerTx2TxParams } from "./helpers";
+import { signerTx2TxParams, sleep } from "./helpers";
 import {
     showConnecting as showConnectionDialog,
     showConnectionError as showConnectionErrorDialog,
@@ -251,7 +251,7 @@ export class ProviderLedger implements Provider {
             }
 
             count++;
-            await this.sleep(TRY_DELAY);
+            await sleep(TRY_DELAY);
             isAppReady = await this.isApplicationReady();
         }
 
@@ -273,10 +273,6 @@ export class ProviderLedger implements Provider {
                 this._isWavesAppReadyPromise = null;
                 return res;
             });
-    }
-
-    private async sleep(seconds: number): Promise<void> {
-        return new Promise((resolve, reject) => { setTimeout(resolve, seconds *1000); });
     }
 
     private __log(tag: string, ...args) {
