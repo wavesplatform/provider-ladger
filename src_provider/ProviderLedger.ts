@@ -61,9 +61,7 @@ export class ProviderLedger implements Provider {
         this.__log('constructor');
     }
 
-    public sign(
-        list: Array<SignerTx>
-    ): Promise<Array<ProviderSignedTx>> {
+    public sign(list: Array<SignerTx>): Promise<Array<ProviderSignedTx>> {
         this.__log('sign', list);
 
         if (this.user === null) {
@@ -73,54 +71,7 @@ export class ProviderLedger implements Provider {
                 });
         }
 
-        return Promise.all(
-            list.map((tx: SignerTx): Promise<any> => {
-                const publicKey: string = (this.user?.publicKey as string);
-                const txParams = signerTx2TxParams(tx);
-                // const signedTx = signTx(txParams, publicKey);
-                const dataBuffer = makeTxBytes({
-                    ...txParams,
-                    senderPublicKey: publicKey,
-                });
-
-                closeDialog();
-                showSignTxDialog(tx);
-
-                const data2sign = {
-                    dataType: txParams.type,
-                    dataVersion: txParams.version,
-                    dataBuffer: dataBuffer,
-                    amountPrecision: 0,
-                    amount2Precision: 0,
-                    feePrecision: 0,
-                    // amountPrecision: tx.amountPrecision ?? null,
-                    // amount2Precision: tx.amount2Precision ?? null,
-                    // feePrecision: tx.feePrecision ?? null,
-                };
-
-                return this._wavesLedger!.signTransaction(this.user!.id, data2sign)
-                    .then((proof: string): any => {
-                        const proofs = (tx.proofs || []);
-
-                        proofs.push(proof);
-
-                        let signedTx: any = {
-                            // id: signedTx.id,
-                            senderPublicKey: publicKey,
-
-                            // original
-                            ...txParams,
-                            ...tx,
-                            proofs: proofs
-                        };
-
-                        closeDialog();
-
-                        this.__log('sign :: signed tx', signedTx);
-                        return signedTx;
-                    });
-            })
-        ) as any;
+        return this._sign(list);
     }
 
     public signTypedData(data: Array<TypedData>): Promise<string> {
@@ -177,16 +128,7 @@ export class ProviderLedger implements Provider {
             return UserDataPromise;
         }
 
-        this.__log('login');
-
-        closeDialog();
-        return showGetUserDialog(this._wavesLedger!)
-            .then((user) => {
-                this.user =  user;
-
-                this.__log('login :: user', this.user);
-                return (user as UserData);
-            });
+        return this._login();
     }
 
     public logout(): Promise<void> {
@@ -222,6 +164,73 @@ export class ProviderLedger implements Provider {
         this.__log('off');
         console.error('Not implemented');
         return this;
+    }
+
+    private _login(): Promise<UserData> {
+        this.__log('login');
+
+        closeDialog();
+        return showGetUserDialog(this._wavesLedger!)
+            .then((user) => {
+                this.user =  user;
+
+                this.__log('login :: user', this.user);
+                return (user as UserData);
+            });
+    }
+
+
+    private _sign(list: Array<SignerTx>): Promise<Array<ProviderSignedTx>> {
+        this.__log('sign', list);
+
+        return Promise.all(
+            list.map((tx: SignerTx): Promise<any> => {
+                const publicKey: string = (this.user?.publicKey as string);
+                const txParams = signerTx2TxParams(tx);
+                // const signedTx = signTx(txParams, publicKey);
+                const dataBuffer = makeTxBytes({
+                    ...txParams,
+                    senderPublicKey: publicKey,
+                });
+
+                closeDialog();
+                showSignTxDialog(tx);
+
+                const data2sign = {
+                    dataType: txParams.type,
+                    dataVersion: txParams.version,
+                    dataBuffer: dataBuffer,
+                    amountPrecision: 0,
+                    amount2Precision: 0,
+                    feePrecision: 0,
+                    // amountPrecision: tx.amountPrecision ?? null,
+                    // amount2Precision: tx.amount2Precision ?? null,
+                    // feePrecision: tx.feePrecision ?? null,
+                };
+
+                return this._wavesLedger!.signTransaction(this.user!.id, data2sign)
+                    .then((proof: string): any => {
+                        const proofs = (tx.proofs || []);
+
+                        proofs.push(proof);
+
+                        let signedTx: any = {
+                            // id: signedTx.id,
+                            senderPublicKey: publicKey,
+
+                            // original
+                            ...txParams,
+                            ...tx,
+                            proofs: proofs
+                        };
+
+                        closeDialog();
+
+                        this.__log('sign :: signed tx', signedTx);
+                        return signedTx;
+                    });
+            })
+        ) as any;
     }
 
     private async initWavesLedger(): Promise<null> {
@@ -264,14 +273,23 @@ export class ProviderLedger implements Provider {
     }
 
     private async isApplicationReady(): Promise<boolean> {
+console.log('isApplicationReady', 1);
         if(!this._isWavesAppReadyPromise) {
-            this._isWavesAppReadyPromise = this._wavesLedger!.probeDevice();
+            try {console.log('isApplicationReady', 2);
+                this._isWavesAppReadyPromise = this._wavesLedger!.probeDevice();
+            } catch (er) {console.log('isApplicationReady', 3);
+                return Promise.resolve(false);
+            }
         }
-
+        console.log('isApplicationReady', 4);
         return this._isWavesAppReadyPromise!
             .then((res) => {
                 this._isWavesAppReadyPromise = null;
                 return res;
+            })
+            .catch((er) => {
+                this._isWavesAppReadyPromise = null;
+                return false;
             });
     }
 
