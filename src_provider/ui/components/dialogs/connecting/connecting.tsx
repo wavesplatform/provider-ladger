@@ -1,42 +1,29 @@
 import React from 'react';
 
-import styles from "./styles.less";
+import {
+    Box,
+    SvgLedgerLogo,
+    Loader,
+    Title,
+    SubTitle
+} from '../../../ui-kit';
 
-export interface IConnectingProps {
-    // ledger: WavesLedgerSync;
-    // onLogin: (user: IUser) => void
-    // selectedUserId?: number;
-}
+import styles from './styles.less';
 
-interface IConnectingState {
-    // selectedUser: IUser | null;
-    // userList: IUser[];
-    // paginationIndex: number;
-}
+export interface IConnectingProps {};
 
-export class ConnectingComponent extends React.Component<IConnectingProps, IConnectingState> {
-    // constructor(props) {
-    //     super(props);
-
-    //     this.state = {
-    //         selectedUser: null,
-    //         userList: [],
-    //         paginationIndex: 0
-    //     };
-    // }
-
+export class ConnectingComponent extends React.Component<IConnectingProps> {
     render() {
         return (
-            <div className={styles.container}>
-                <div>Подключение...</div>
-                <br />
-                <ul>
-                    <li>Подключите устройство Ledger</li>
+            <Box className={styles.component} col>
+                <SvgLedgerLogo />
+                <Title className={styles.title}>Подключение...</Title>
+                <SubTitle className={styles.subtitle}>Подключите устройство Ledger</SubTitle>
+                    {/* <li>Подключите устройство Ledger</li>
                     <li>Введите ваш pin-code</li>
-                    <li>Откройте приложение WAVES</li>
-                </ul>
-            </div>
+                    <li>Откройте приложение WAVES</li> */}
+                <Loader className={styles.loader} />
+            </Box>
         );
     }
-
 }

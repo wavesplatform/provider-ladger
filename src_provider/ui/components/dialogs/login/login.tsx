@@ -1,8 +1,8 @@
 import React from 'react';
 import { IUser, WavesLedgerSync } from '@waves/ledger';
-import { UserComponent } from "../../user/user";
+import { UserComponent } from '../../user/user';
 
-import styles from "./styles.less";
+import styles from './styles.less';
 
 export interface ILoginComponentProps {
     ledger: WavesLedgerSync;
@@ -41,7 +41,7 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
                     {
                         selectedUser
                         ? (<UserComponent user={selectedUser} onClick={this.onSelectUser.bind(this)}/>)
-                        : ("Выберите аккаунт")
+                        : ('Выберите аккаунт')
                     }
                 </div> */}
                 <div className={styles.userlist}>

@@ -1,6 +1,6 @@
-import React from "react";
-import {  WavesLedgerSync } from "@waves/ledger";
-import styles from "./styles.less"
+import React from 'react';
+// import {  WavesLedgerSync } from '@waves/ledger';
+import styles from './styles.less'
 
 export interface ISignTxComponentProps {
     // ledger: WavesLedgerSync;

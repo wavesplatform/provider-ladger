@@ -11,14 +11,14 @@ import {
 import { IUser, WavesLedgerSync, IWavesLedgerConfig } from '@waves/ledger';
 import { libs, makeTx, makeTxBytes, signTx } from '@waves/waves-transactions';
 // import { Waves } from '@waves/ledger/lib/Waves';
-import { signerTx2TxParams, sleep } from "./helpers";
+import { signerTx2TxParams, sleep } from './helpers';
 import {
     showConnecting as showConnectionDialog,
     showConnectionError as showConnectionErrorDialog,
     getUser as showGetUserDialog,
     signTx as showSignTxDialog,
     closeDialog,
-} from "./ui";
+} from './ui';
 import {
     IProviderLedgerConfig,
     ProviderSignedTx,

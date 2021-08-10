@@ -1,5 +1,6 @@
-import React from "react";
-import styles from "./styles.less";
+import React from 'react';
+
+import { PopupLayout, Dialog } from '../../ui-kit'; // todo module
 
 interface IPopupContainerProps {
     onClose: () => void;
@@ -8,12 +9,11 @@ interface IPopupContainerProps {
 export class PopupContainer extends React.Component<IPopupContainerProps> {
     render() {
         return (
-            <div className={styles.container}>
-                <div className={styles.dialog}>
-                    <div className={styles.close} onClick={this.props.onClose}>закрыть</div>
+            <PopupLayout>
+                <Dialog onClose={this.props.onClose}>
                     {this.props.children}
-                </div>
-            </div>
+                </Dialog>
+            </PopupLayout>
         );
     }
 }

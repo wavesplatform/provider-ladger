@@ -1,7 +1,7 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-import { IUser, WavesLedgerSync } from "@waves/ledger";
+import { IUser, WavesLedgerSync } from '@waves/ledger';
 import {
     IConnectingProps,
     IConnectionErrorProps,
@@ -11,8 +11,8 @@ import {
     ConnectionErrorComponent,
     LoginComponent,
     SignTxComponent
-} from "./components"
-import { PopupContainer } from "./containers";
+} from './components'
+import { PopupContainer } from './containers';
 
 const LOCALSTORE_KEY = 'pldata-selected-user-id';
 const CONTAINER_ID = 'plui-container';

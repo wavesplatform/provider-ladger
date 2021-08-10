@@ -1,6 +1,6 @@
 import React from 'react';
 import { IUser } from '@waves/ledger';
-import styles from "./styles.less";
+import styles from './styles.less';
 
 interface IUserComponentProps {
     user: IUser;

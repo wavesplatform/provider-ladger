@@ -1,0 +1,60 @@
+@import "./common.less";
+@import "./variables.less";
+
+.button-icon {
+    .clean();
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: @block-height;    
+    min-width: @block-height;
+    border-width: 0;
+    border-radius: 4px;
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+    box-shadow: none;
+
+    &:hover {
+        background: transparent;
+        box-shadow: none;
+    }
+}
+
+.button() {
+    .clean();
+    .button-icon();
+
+    background: @btn-back-color;
+    color: @btn-text-color;
+
+    &:hover {
+        background: @btn-back-color;
+        color: @btn-text-color;
+    }
+}
+
+.textarea() {
+    .clean();
+
+    border-width: 0;
+    min-height: @block-height;
+    min-width: @block-height;
+    border-radius: 8px;
+    
+    background: @txtarea-back-color;
+    color: @textarea-text-color;
+}
+
+.loader {
+    color: @text-main-color;
+}
+
+.dialog {
+    .clean();
+
+    border-width: 0;
+    border-radius: 6px;
+    background: @dialog-back-color;
+}
