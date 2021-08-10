@@ -1,40 +1,42 @@
 import React from 'react';
 
+import {
+    Box,
+    Button,
+    Title,
+    SvgCrossError,
+    SubTitle
+} from '../../../ui-kit';
+
 import styles from './styles.less';
 
 export interface IConnectionErrorProps {
     onReconnect: () => void
 }
 
-interface IConnectionErrorState {
-    // selectedUser: IUser | null;
-    // userList: IUser[];
-    // paginationIndex: number;
-}
+interface IConnectionErrorState {}
 
 export class ConnectionErrorComponent extends React.Component<IConnectionErrorProps, IConnectionErrorState> {
-    // constructor(props) {
-    //     super(props);
-
-    //     this.state = {
-    //         selectedUser: null,
-    //         userList: [],
-    //         paginationIndex: 0
-    //     };
-    // }
 
     render() {
         return (
-            <div className={styles.container}>
-                <div>Не удалось подключиться</div>
-                <br />
-                <button
+            <Box className={styles.component} col>
+                <SvgCrossError />
+                <Title className={styles.title}>Не удается подключиться к устройству Ledger</Title>
+                <SubTitle className={styles.subtitle}>
+                    Время ожидания соединения истекло<br />
+                    Пожалуйста попробуйте еще раз
+                </SubTitle>
+                <SubTitle className={styles.subtitle}>
+                    Если ошибка повторится, обратитесь к <a href="#">этой статье</a>
+                </SubTitle>
+                <Button
                     className={styles.button}
                     onClick={this.onReconnect.bind(this)}
                 >
-                    повторить попытку
-                </button>
-            </div>
+                    Повторить попытку
+                </Button>
+            </Box>
         );
     }
 

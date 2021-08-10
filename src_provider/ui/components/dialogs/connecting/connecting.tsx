@@ -6,7 +6,7 @@ import {
     Loader,
     Title,
     SubTitle
-} from '../../../ui-kit';
+} from '../../../ui-kit'; // todo module
 
 import styles from './styles.less';
 
