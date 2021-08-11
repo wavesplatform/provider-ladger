@@ -1,20 +1,51 @@
-@import "../../theme/default.less"; // todo module import
+@import "../../theme/variables.less"; // todo module import
 
-.title {
+.component {
+
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: normal;
+
     color: @text-main-color;
-    font-family: Roboto;
-    font-style: normal;
-    font-weight: normal;
-    line-height: 37px;
-    font-size: 32px;
-}
+    font-size: 14px;
+    line-height: 16px;
 
-.subtitle {
-    color: @text-descr-color;
-    font-family: Roboto;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 21px;
-    line-height: 25px;
-    font-size: 21px;
+    /* size */
+    &.xlarge {
+        font-size: 32px;
+        line-height: 37px;
+    }
+
+    &.large {
+        font-size: 21px;
+        line-height: 25px;
+    }
+
+    &.medium {
+        font-size: 14px;
+        line-height: 16px;
+    }
+
+    &.small {
+        font-size: 12px;
+        line-height: 14px;
+    }
+
+    /* color */
+    &.second {
+        color: @text-color-second;
+    }
+
+    &.label {
+        color: @text-label-color;
+    }
+
+    &.descr {
+        color: @text-descr-color;
+    }
+
+    &.inactive {
+        color: @text-descr-color;
+        opacity: 0.4; /* move to theme */
+    }
 }

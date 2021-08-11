@@ -266,8 +266,8 @@ export class ProviderLedger implements Provider {
     }
 
     private async awaitingWavesApp(): Promise<boolean> {
-        const TRY_COUNT = 3;
-        const TRY_DELAY = 5;
+        const TRY_COUNT = 15;
+        const TRY_DELAY = 1;
 
         let count = 1;
         let isAppReady = await this.isWavesAppReady();
@@ -291,15 +291,14 @@ export class ProviderLedger implements Provider {
     }
 
     private async isWavesAppReady(): Promise<boolean> {
-console.log('isWavesAppReady', 1);
         if(!this._isWavesAppReadyPromise) {
-            try {console.log('isWavesAppReady', 2);
+            try {
                 this._isWavesAppReadyPromise = this._wavesLedger!.probeDevice();
-            } catch (er) {console.log('isWavesAppReady', 3);
+            } catch (er) {
                 return Promise.resolve(false);
             }
         }
-        console.log('isWavesAppReady', 4);
+
         return this._isWavesAppReadyPromise!
             .then((res) => {
                 this._isWavesAppReadyPromise = null;

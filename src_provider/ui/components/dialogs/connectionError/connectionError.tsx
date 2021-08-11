@@ -3,10 +3,9 @@ import React from 'react';
 import {
     Box,
     Button,
-    Title,
+    Text,
     SvgCrossError,
-    SubTitle
-} from '../../../ui-kit';
+} from '../../../ui-kit'; // todo ui-kit
 
 import styles from './styles.less';
 
@@ -22,14 +21,14 @@ export class ConnectionErrorComponent extends React.Component<IConnectionErrorPr
         return (
             <Box className={styles.component} col>
                 <SvgCrossError />
-                <Title className={styles.title}>Не удается подключиться к устройству Ledger</Title>
-                <SubTitle className={styles.subtitle}>
+                <Text className={styles.title} xl>Не удается подключиться к устройству Ledger</Text>
+                <Text className={styles.subtitle} l descr>
                     Время ожидания соединения истекло<br />
                     Пожалуйста попробуйте еще раз
-                </SubTitle>
-                <SubTitle className={styles.subtitle}>
+                </Text>
+                <Text className={styles.subtitle} l descr>
                     Если ошибка повторится, обратитесь к <a href="#">этой статье</a>
-                </SubTitle>
+                </Text>
                 <Button
                     className={styles.button}
                     onClick={this.onReconnect.bind(this)}

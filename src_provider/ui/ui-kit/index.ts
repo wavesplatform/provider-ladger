@@ -3,6 +3,7 @@ export * from './container/box';
 // export * from './container';
 export * from './dialog';
 // export * from './icon';
+export * from './identityImg';
 export * from './layout';
 export * from './loader';
 export * from './svg';

@@ -3,7 +3,8 @@ import cn from 'classnames';
 
 import styles from './styles.less';
 
-interface IBoxProps extends React.ComponentPropsWithoutRef<'button'> {
+interface IBoxProps extends React.ComponentPropsWithoutRef<'div'> {
+    start?: boolean;
     col?: boolean;
 }
 
@@ -12,11 +13,14 @@ export class Box extends React.Component<IBoxProps> {
         const { className, ...props } = this.props;
 
         const classNameComponent = cn(styles.component, className, {
-            [styles.col]: props.col
+            [styles.col]: props.col,
+            [styles.start]: props.start, // align
         });
 
         return (
-            <div className={classNameComponent}>{this.props.children}</div>
+            <div className={classNameComponent} {...props}>
+                {this.props.children}
+            </div>
         );
     }
 }
