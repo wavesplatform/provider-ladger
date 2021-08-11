@@ -9,11 +9,26 @@
         flex-direction: column;
     }
 
+    /*  align */
     &.start {
         align-items: start;
     }
 
+    &.alignend {
+        align-items: flex-end; // todo check cross browser
+    }
+
+    /* justify */
     &.center {
         justify-content: center;
+        text-align: center; // todo recheck with text nodes
+    }
+
+    &.end {
+        justify-content: end;
+    }
+
+    &.between {
+        justify-content: space-between;
     }
 }

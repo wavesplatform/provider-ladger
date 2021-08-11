@@ -12,7 +12,7 @@ import {
     LoginComponent,
     SignTxComponent
 } from './components'
-import { PopupContainer } from './containers';
+import { IPopupContainerProps, PopupContainer } from './containers';
 
 const LSK_LAST_AUTH_USER_ID = 'pldata-auth-user-id';
 const LSK_AUTH_USER_LIST = 'pld-auth-user-list'
@@ -32,7 +32,7 @@ const insureContainer = () => {
     }
 }
 
-const renderInContainer = (component: any) => {
+const renderInContainer = (component: any, hideClose?: boolean) => {
     if (opened) {
         return;
     }
@@ -41,9 +41,11 @@ const renderInContainer = (component: any) => {
 
     insureContainer();
 
-    ReactDOM.render(React.createElement<{ onClose: () => void }>(
+    ReactDOM.render(React.createElement<IPopupContainerProps>(
         PopupContainer,
-        { onClose: closeDialog },
+        {
+            onClose: !hideClose ? closeDialog : undefined
+        },
         component
     ), document.getElementById(CONTAINER_ID));
 }
@@ -96,13 +98,15 @@ export const getUser = async (ledger: WavesLedgerSync): Promise<IUser> => {
 }
 
 // export const signTx = async(ledger: WavesLedgerSync, userId: number, tx: any): Promise<any> => {
-export const signTx = async(tx: any): Promise<any> => {
+export const signTx = async(tx: any, user: IUser): Promise<any> => {
     return new Promise((resolve, reject) => {
         const reactElement = React.createElement<ISignTxComponentProps>(SignTxComponent, {
+            user: user,
             tx: tx,
+            onCancel: () => { closeDialog(); }
         });
 
-        renderInContainer(reactElement);
+        renderInContainer(reactElement, true);
     });
 }
 

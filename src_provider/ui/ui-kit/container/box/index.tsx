@@ -4,8 +4,14 @@ import cn from 'classnames';
 import styles from './styles.less';
 
 interface IBoxProps extends React.ComponentPropsWithoutRef<'div'> {
-    start?: boolean;
     col?: boolean;
+
+    start?: boolean; // todo refactoring
+    alignend?: boolean;
+
+    center?: boolean;
+    end?: boolean;
+    between?: boolean;
 }
 
 export class Box extends React.Component<IBoxProps> {
@@ -14,7 +20,15 @@ export class Box extends React.Component<IBoxProps> {
 
         const classNameComponent = cn(styles.component, className, {
             [styles.col]: props.col,
-            [styles.start]: props.start, // align
+
+            // align
+            [styles.start]: props.start,
+            [styles.alignend]: props.alignend,
+
+            // justify
+            [styles.center]: props.center,
+            [styles.end]: props.end,
+            [styles.between]: props.between,
         });
 
         return (

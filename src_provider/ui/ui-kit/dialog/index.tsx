@@ -4,7 +4,7 @@ import { ButtonIconClose } from '../../ui-kit'
 import styles from './styles.less';
 
 interface IDivProps extends React.ComponentPropsWithoutRef<'div'> {
-    onClose: () => void;
+    onClose?: () => void | undefined;
 }
 
 export class Dialog extends React.Component<IDivProps> {
@@ -14,7 +14,7 @@ export class Dialog extends React.Component<IDivProps> {
 
         return (
             <div className={styles.component}>
-                <ButtonIconClose className={styles.close} onClick={onClose} />
+                { onClose ? <ButtonIconClose className={styles.close} onClick={onClose} /> : null }
                 {children}
             </div>
         );

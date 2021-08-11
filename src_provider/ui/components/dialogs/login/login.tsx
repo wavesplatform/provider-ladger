@@ -2,7 +2,7 @@ import React from 'react';
 import cn from 'classnames';
 
 import { IUser, WavesLedgerSync } from '@waves/ledger';
-import { UserComponent } from '../../user/user';
+import { UserComponent } from '../../user';
 
 import {
     Box,
@@ -159,13 +159,19 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
 
     renderAuthUser(user: IUser) {
         const { lastAuthUserId } = this.props;
+        const { selectedUser } = this.state;
+        const className = cn(styles.usercontainer, {
+            [styles.selected]: selectedUser?.id === user.id
+        });
 
         return (
-            <UserComponent
-                onClick={() => { this.onSelectUser(user) }}
-                user={user}
-                active={lastAuthUserId === user.id}
-            />
+            <Box className={className}>
+                <UserComponent
+                    onClick={() => { this.onSelectUser(user) }}
+                    user={user}
+                    latest={lastAuthUserId === user.id}
+                />
+            </Box>
         );
     }
 

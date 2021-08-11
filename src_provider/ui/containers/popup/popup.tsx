@@ -2,8 +2,8 @@ import React from 'react';
 
 import { PopupLayout, Dialog } from '../../ui-kit'; // todo module
 
-interface IPopupContainerProps {
-    onClose: () => void;
+export interface IPopupContainerProps {
+    onClose?: () => void | undefined;
 }
 
 export class PopupContainer extends React.Component<IPopupContainerProps> {

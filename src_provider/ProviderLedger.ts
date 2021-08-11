@@ -212,7 +212,7 @@ export class ProviderLedger implements Provider {
                 });
 
                 closeDialog();
-                showSignTxDialog(tx);
+                showSignTxDialog(tx, this.user!); // we must have user when try to sign tx
 
                 const data2sign = {
                     dataType: txParams.type,
