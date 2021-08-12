@@ -8,6 +8,7 @@ import {
     Box,
     Button,
     IdentityImg,
+    SvgPlus,
     Text,
 } from '../../../ui-kit'; // todo ui-kit
 
@@ -51,7 +52,6 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
     }
 
     render() {
-        const { lastAuthUserId } = this.props;
         const { state, selectedUser } = this.state;
 
         return (
@@ -59,8 +59,9 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
                 <Text className={styles.title} xl>Выбор Ledger аккаунта</Text>
                 <Text className={styles.subtitle} l descr>Выберите адрес</Text>
                 { state == ELoginState.LAST_AUTH ? this.renderLastAuth() : this.renderLedgerList() }
-                <Box className={styles.footer}>
+                <Box className={styles.footer} center>
                     <Button
+                        className={styles.btnconfirm}
                         onClick={this.onLogin.bind(this)}
                         disabled={selectedUser === null}
                     >Подтвердить</Button>
@@ -92,10 +93,12 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
         const { authUserList } = this.props;
 
         return (
-            <Box className={styles.lastauth} start col>
-                {authUserList?.map(this.renderAuthUser, this)}
+            <Box className={styles.lastauth} col alignstart>
+                <div className={styles.lastauthlist}>
+                    {authUserList?.map(this.renderAuthUser, this)}
+                </div>
                 <Box className={styles.chooseanother} onClick={() => this.onChooseAnother()}>
-                    <IdentityImg className={styles.avatar} hash='' />
+                    <Box className={styles.plusicon} center><SvgPlus /></Box>
                     <Text>Выбрать другой адрес</Text>
                 </Box>
             </Box>
@@ -106,7 +109,7 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
         const { ledgerUserList, selectedUser } = this.state;
 
         return (
-            <Box className={styles.ledgerlistcontainer} col>
+            <Box className={styles.ledgerusers} col>
                 {   ledgerUserList?.length > 0
                     ? (
                         <>
@@ -116,8 +119,8 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
                             {
                                 selectedUser
                                 ? (
-                                    <Box className={styles.accountinfo} col start>
-                                        <Text className={styles.fieldtitle} label>Адрес аккаунта</Text>
+                                    <Box className={styles.accountinfo} col alignstart>
+                                        <Text label>Адрес аккаунта</Text>
                                         <Text className={styles.fieldvalue}>{selectedUser?.address}</Text>
                                         <Text className={styles.fieldtitle} label>ID аккаунта</Text>
                                         <Text className={styles.fieldvalue}>{selectedUser?.id}</Text>
@@ -158,7 +161,7 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
         return (
             <Box className={styles.ledgeruser} col onClick={() => { this.onSelectUser(user) }}>
                 <IdentityImg hash='' />
-                <Text s inactive={!isSelected}>Аккаунт {index}</Text>
+                <Text className={styles.ledgerusername} s inactive={!isSelected}>Аккаунт {index}</Text>
             </Box>
         );
     }

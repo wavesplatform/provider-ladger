@@ -26,7 +26,7 @@ export class UserComponent extends React.Component<IUserComponentProps> {
         return (
             <Box className={cn(styles.component)} onClick={() => this.onClick()}>
                 <IdentityImg  className={styles.avatar} hash='' />
-                <Box col start>
+                <Box col alignstart>
                     <Box>
                         <Text s label>Мой адрес {user.id}</Text>&nbsp;&nbsp;
                         { latest ? <Text s second>Последний</Text> : null }

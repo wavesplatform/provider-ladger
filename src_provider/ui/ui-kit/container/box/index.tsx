@@ -6,7 +6,7 @@ import styles from './styles.less';
 interface IBoxProps extends React.ComponentPropsWithoutRef<'div'> {
     col?: boolean;
 
-    start?: boolean; // todo refactoring
+    alignstart?: boolean; // todo refactoring
     alignend?: boolean;
 
     center?: boolean;
@@ -22,7 +22,7 @@ export class Box extends React.Component<IBoxProps> {
             [styles.col]: props.col,
 
             // align
-            [styles.start]: props.start,
+            [styles.alignstart]: props.alignstart,
             [styles.alignend]: props.alignend,
 
             // justify
