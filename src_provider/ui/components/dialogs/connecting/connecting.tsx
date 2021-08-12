@@ -15,7 +15,7 @@ export class ConnectingComponent extends React.Component<IConnectingProps> {
     render() {
         return (
             <Box className={styles.component} col>
-                <SvgLedgerLogo />
+                <Box className={styles.ledgerlogo}><SvgLedgerLogo /></Box>
                 <Text className={styles.title} xl>Подключение...</Text>
                 <Text className={styles.subtitle} l descr>Подключите устройство Ledger</Text>
                     {/* <li>Подключите устройство Ledger</li>

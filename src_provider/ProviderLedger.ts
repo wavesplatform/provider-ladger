@@ -58,6 +58,7 @@ export class ProviderLedger implements Provider {
         this._providerConfig = config || DEFAULT_PROVIDER_CONFIG;
         this._ledgerConfig = config?.wavesLedgerConfig || DEFAULT_WAVES_LEDGER_CONFIG;
 
+        this._loadFonts();
         this.__log('constructor');
     }
 
@@ -205,7 +206,7 @@ export class ProviderLedger implements Provider {
             list.map((tx: SignerTx): Promise<any> => {
                 const publicKey: string = (this.user?.publicKey as string);
                 const txParams = signerTx2TxParams(tx);
-                // const signedTx = signTx(txParams, publicKey);
+                // const signedTx = signTx(tx as any, publicKey);
                 const dataBuffer = makeTxBytes({
                     ...txParams,
                     senderPublicKey: publicKey,
@@ -308,6 +309,30 @@ export class ProviderLedger implements Provider {
                 this._isWavesAppReadyPromise = null;
                 return false;
             });
+    }
+
+    private _loadFonts() {
+        try {
+            const url = 'https://fonts.googleapis.com/css2?family=Roboto&display=swap';
+            const linkEl = document.createElement('link');
+
+            linkEl.rel = 'stylesheet';
+            linkEl.href = url;
+            linkEl.onload = () => {
+                this.__log('_loadFonts :: loaded');
+                // const spanEl = document.createElement('span');
+                // spanEl.innerText = ' ';
+                // spanEl.style.fontFamily = '"Roboto", sans-serif';
+                // spanEl.style.fontStyle = 'normal';
+                // spanEl.style.fontWeight = 'normal';
+
+                // document.querySelector('body')!.appendChild(spanEl);
+            }
+
+            document.querySelector('head')!.appendChild(linkEl);
+        } catch (er) {
+            this.__log('_loadFonts :: fail');
+        }
     }
 
     private __log(tag: string, ...args) {

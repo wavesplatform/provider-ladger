@@ -20,14 +20,14 @@ export class ConnectionErrorComponent extends React.Component<IConnectionErrorPr
     render() {
         return (
             <Box className={styles.component} col>
-                <SvgCrossError />
+                <Box className={styles.erroricon}><SvgCrossError /></Box>
                 <Text className={styles.title} xl>Не удается подключиться к устройству Ledger</Text>
                 <Text className={styles.subtitle} l descr>
                     Время ожидания соединения истекло<br />
                     Пожалуйста попробуйте еще раз
                 </Text>
                 <Text className={styles.subtitle} l descr>
-                    Если ошибка повторится, обратитесь к <a href="#">этой статье</a>
+                    Если ошибка повторится, обратитесь<br /> к <a href="#">этой статье</a>
                 </Text>
                 <Button
                     className={styles.button}

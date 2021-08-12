@@ -53,7 +53,7 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
                 <Box className={styles.header} between>
                     <UserComponent user={user} short/>
                     <Box col alignend>
-                        <Text label>balance</Text>
+                        <Text label>Balance</Text>
                         <Text>10.123 Waves</Text>
                     </Box>
                 </Box>
@@ -104,6 +104,8 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
 
     getDetailsTab() {
         const { tx } = this.props;
+
+        return ('Details');
     }
 
     getJsonTab() {

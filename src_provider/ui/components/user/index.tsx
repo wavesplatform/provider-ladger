@@ -18,7 +18,6 @@ interface IUserComponentProps {
     short?: boolean;
 }
 
-
 export class UserComponent extends React.Component<IUserComponentProps> {
 
     render() {
