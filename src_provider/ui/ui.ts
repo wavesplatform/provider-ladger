@@ -64,7 +64,7 @@ export const closeDialog = () => {
     }
 }
 
-export const getUser = async (ledger: WavesLedgerSync): Promise<IUser> => {
+export const showGetUserDialog = async (ledger: WavesLedgerSync): Promise<IUser> => {
     const uidSV = localStorage.getItem(LSK_LAST_AUTH_USER_ID);
     const ulistSV = localStorage.getItem(LSK_AUTH_USER_LIST);
 
@@ -97,30 +97,29 @@ export const getUser = async (ledger: WavesLedgerSync): Promise<IUser> => {
     });
 }
 
-// export const signTx = async(ledger: WavesLedgerSync, userId: number, tx: any): Promise<any> => {
-export const signTx = async(tx: any, user: IUser): Promise<any> => {
-    return new Promise((resolve, reject) => {
-        const reactElement = React.createElement<ISignTxComponentProps>(SignTxComponent, {
-            user: user,
-            tx: tx,
-            onCancel: () => { closeDialog(); }
-        });
-
-        renderInContainer(reactElement, true);
+export const showSignTxDialog = (tx: any, user: IUser): void => {
+    const reactElement = React.createElement<ISignTxComponentProps>(SignTxComponent, {
+        user: user,
+        tx: tx,
+        onCancel: () => { closeDialog(); }
     });
+
+    renderInContainer(reactElement, true);
 }
 
 
-export const showConnecting = () => {
+export const showConnectingDialog = () => {
     const reactElement = React.createElement<IConnectingProps>(ConnectingComponent);
 
     renderInContainer(reactElement);
 }
 
-export const showConnectionError = (onReconnect) => {
-    const reactElement = React.createElement<IConnectionErrorProps>(ConnectionErrorComponent, {
-        onReconnect: onReconnect
-    });
+export const showConnectionErrorDialog = async (): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        const reactElement = React.createElement<IConnectionErrorProps>(ConnectionErrorComponent, {
+            onReconnect: () => resolve()
+        });
 
-    renderInContainer(reactElement);
+        renderInContainer(reactElement);
+    });
 }

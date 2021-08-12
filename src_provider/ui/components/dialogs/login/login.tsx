@@ -70,6 +70,12 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
     }
 
     componentDidMount() {
+        if (this.state.state === ELoginState.LEDGER_LIST)   {
+            this.loadLedgerUsers();
+        }
+    }
+
+    loadLedgerUsers() {
         const { ledger } = this.props;
         const { selectedUser } = this.state;
 
@@ -80,37 +86,7 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
                     ledgerUserList: users
                 });
             });
-
-        // this.loadMoreUser();
-
-        // const userId = this.props.selectedUserId;
-        // if (userId != null) {
-        //     this.loadUserById(userId);
-        // }
     }
-
-    // async loadUserById(userId: number) {
-    //     const { ledger } = this.props;
-
-    //     return ledger.getUserDataById(userId)
-    //         .then((user: IUser) => {
-    //             this.setState({ selectedUser: user });
-    //         })
-    // }
-
-    // loadMoreUser() {
-    //     const { ledger } = this.props;
-    //     const page = this.getPage(this.state.paginationIndex);
-
-    //     ledger.getPaginationUsersData(page.start, page.end)
-    //         .then((users: IUser[]) => {
-    //             const userList = this.state.userList;
-
-    //             this.setState({ userList: userList.concat(users) });
-    //         });
-
-    //     this.setState({ paginationIndex: this.state.paginationIndex + 1 });
-    // }
 
     renderLastAuth() {
         const { authUserList } = this.props;
@@ -201,15 +177,15 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
         this.setState({
             state: ELoginState.LEDGER_LIST
         });
+
+        if(this.state.ledgerUserList.length === 0) {
+            this.loadLedgerUsers();
+        }
     }
 
     onSelectUser(user: IUser) {
         this.setState({ selectedUser: user });
     }
-
-    // onClickLoadMoreUsers() {
-    //     this.loadMoreUser();
-    // }
 
     onLogin() {
         const props = this.props;

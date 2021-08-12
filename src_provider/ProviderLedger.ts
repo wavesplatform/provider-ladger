@@ -13,10 +13,10 @@ import { libs, makeTx, makeTxBytes, signTx } from '@waves/waves-transactions';
 // import { Waves } from '@waves/ledger/lib/Waves';
 import { signerTx2TxParams, sleep } from './helpers';
 import {
-    showConnecting as showConnectionDialog,
-    showConnectionError as showConnectionErrorDialog,
-    getUser as showGetUserDialog,
-    signTx as showSignTxDialog,
+    showConnectingDialog,
+    showConnectionErrorDialog,
+    showGetUserDialog,
+    showSignTxDialog,
     closeDialog,
 } from './ui';
 import {
@@ -49,7 +49,6 @@ export class ProviderLedger implements Provider {
 
     private _wavesLedger: WavesLedgerSync | null = null;
     private _wavesLedgerConnection: any | null = null;
-    private _isWavesAppReady: boolean = false;
     private _isWavesAppReadyPromise: Promise<boolean> | null = null;
 
     public user: IUser | null = null;
@@ -62,35 +61,49 @@ export class ProviderLedger implements Provider {
         this.__log('constructor');
     }
 
-    public sign(list: Array<SignerTx>): Promise<Array<ProviderSignedTx>> {
+
+    public async login(): Promise<UserData> {
+        this.__log('login');
+
+        closeDialog();
+        if(!this.isLedgerInited()) {
+            showConnectingDialog();
+            try { await this.initWavesLedger(); } catch (er) { console.error('login :: initWavesLedger', er); }
+        }
+
+        const isWavesAppReady = await this.isWavesAppReady();
+
+        if(!isWavesAppReady) {
+            showConnectingDialog();
+            let isReady: boolean = false;
+            try { isReady = await this.awaitingWavesApp(); } catch (er) { console.error('login :: isWavesAppReady', er); }
+
+            if (!isReady) {
+                closeDialog();
+                await showConnectionErrorDialog();
+                return this.login();
+            }
+        }
+
+        return this._login();
+    }
+
+    public logout(): Promise<void> {
+        this.__log('logout');
+
+        this.user = null;
+
+        return Promise.resolve();
+    }
+
+    public async sign(list: Array<SignerTx>): Promise<Array<ProviderSignedTx>> {
         this.__log('sign', list);
 
         if (this.user === null) {
-            return this.login()
-                .then(() => {
-                    return this.sign(list);
-                });
+            await this.login();
         }
 
-        return new Promise(async (resolve, reject) => {
-            let isAppReady = await this.isWavesAppReady();
-
-            if(!isAppReady) {
-                closeDialog();
-                showConnectionDialog();
-
-                isAppReady = await this.awaitingWavesApp();
-            }
-
-            if (isAppReady) {
-                resolve(this._sign(list));
-            } else {
-                closeDialog();
-                return showConnectionErrorDialog(() => {
-                    return this.sign(list);
-                });
-            }
-        });
+        return this._sign(list)
     }
 
     public signTypedData(data: Array<TypedData>): Promise<string> {
@@ -111,49 +124,6 @@ export class ProviderLedger implements Provider {
         this.__log('connect', options);
 
         this._options = options;
-
-        return Promise.resolve();
-    }
-
-    public login(): Promise<UserData> {
-        if(!this.isLedgerInited() /* || !this._isWavesAppReady*/) { // todo check App
-            closeDialog();
-            showConnectionDialog();
-
-            let resolveFn: (data: UserData) => void;
-            let rejectFn: (data: UserData) => void;
-
-            const UserDataPromise = new Promise<UserData>((resolve, reject) => {
-                resolveFn = resolve;
-                rejectFn = reject;
-            });
-
-            this.initWavesLedger()
-                .then(() => {
-                    return this.awaitingWavesApp()
-                        .then((ready) => {
-
-                            if(!ready) {
-                                closeDialog();
-                                return showConnectionErrorDialog(() => {
-                                    this.login().then(resolveFn);
-                                });
-                            } else {
-                                return this.login().then(resolveFn);
-                            }
-                        });
-                });
-
-            return UserDataPromise;
-        }
-
-        return this._login();
-    }
-
-    public logout(): Promise<void> {
-        this.__log('logout');
-
-        this.user = null;
 
         return Promise.resolve();
     }
@@ -186,7 +156,7 @@ export class ProviderLedger implements Provider {
     }
 
     private _login(): Promise<UserData> {
-        this.__log('login');
+        this.__log('_login');
 
         closeDialog();
         return showGetUserDialog(this._wavesLedger!)
@@ -200,7 +170,7 @@ export class ProviderLedger implements Provider {
 
 
     private _sign(list: Array<SignerTx>): Promise<Array<ProviderSignedTx>> {
-        this.__log('sign', list);
+        this.__log('_sign', list);
 
         return Promise.all(
             list.map((tx: SignerTx): Promise<any> => {
@@ -283,7 +253,6 @@ export class ProviderLedger implements Provider {
             isAppReady = await this.isWavesAppReady();
         }
 
-        this._isWavesAppReady = true;
         return true;
     }
 
