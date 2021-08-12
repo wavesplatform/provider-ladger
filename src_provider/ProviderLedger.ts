@@ -175,19 +175,22 @@ export class ProviderLedger implements Provider {
         return Promise.all(
             list.map((tx: SignerTx): Promise<any> => {
                 const publicKey: string = (this.user?.publicKey as string);
-                const txParams = signerTx2TxParams(tx);
+                let tx4ledger = signerTx2TxParams(tx);
                 // const signedTx = signTx(tx as any, publicKey);
+                // tx4ledger.id = '1'; // todo
+                tx4ledger.senderPublicKey = publicKey;
+
                 const dataBuffer = makeTxBytes({
-                    ...txParams,
+                    ...tx4ledger,
                     senderPublicKey: publicKey,
                 });
 
                 closeDialog();
-                showSignTxDialog(tx, this.user!); // we must have user when try to sign tx
+                showSignTxDialog(tx4ledger, this.user!); // we must have user when try to sign tx
 
                 const data2sign = {
-                    dataType: txParams.type,
-                    dataVersion: txParams.version,
+                    dataType: tx4ledger.type,
+                    dataVersion: tx4ledger.version,
                     dataBuffer: dataBuffer,
                     amountPrecision: 0,
                     amount2Precision: 0,
@@ -208,7 +211,7 @@ export class ProviderLedger implements Provider {
                             senderPublicKey: publicKey,
 
                             // original
-                            ...txParams,
+                            ...tx4ledger,
                             ...tx,
                             proofs: proofs
                         };

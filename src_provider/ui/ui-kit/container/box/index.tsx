@@ -9,6 +9,7 @@ interface IBoxProps extends React.ComponentPropsWithoutRef<'div'> {
     alignstart?: boolean; // todo refactoring
     alignend?: boolean;
 
+    start?: boolean;
     center?: boolean;
     end?: boolean;
     between?: boolean;
@@ -26,6 +27,7 @@ export class Box extends React.Component<IBoxProps> {
             [styles.alignend]: props.alignend,
 
             // justify
+            // [styles.start]: props.start,
             [styles.center]: props.center,
             [styles.end]: props.end,
             [styles.between]: props.between,

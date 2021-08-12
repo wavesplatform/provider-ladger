@@ -17,10 +17,11 @@ export class ConnectingComponent extends React.Component<IConnectingProps> {
             <Box className={styles.component} col>
                 <Box className={styles.ledgerlogo}><SvgLedgerLogo /></Box>
                 <Text className={styles.title} xl>Подключение...</Text>
-                <Text className={styles.subtitle} l descr>Подключите устройство Ledger</Text>
-                    {/* <li>Подключите устройство Ledger</li>
-                    <li>Введите ваш pin-code</li>
-                    <li>Откройте приложение WAVES</li> */}
+                <Box col alignstart>
+                    <Text className={styles.subtitle} m descr>- Подключите устройство Ledger</Text>
+                    <Text className={styles.subtitle} m descr>- Введите ваш pin-code</Text>
+                    <Text className={styles.subtitle} m descr>- Откройте приложение WAVES</Text>
+                </Box>
                 <Loader className={styles.loader} />
             </Box>
         );

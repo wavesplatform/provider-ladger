@@ -2,6 +2,8 @@ import React from 'react';
 // import {  WavesLedgerSync } from '@waves/ledger';
 import { IUser } from '@waves/ledger';
 
+import { getTxName } from '../../../helpers'; // todo ui-kit
+
 import {
     Box,
     Button,
@@ -53,21 +55,27 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
                 <Box className={styles.header} between>
                     <UserComponent user={user} short/>
                     <Box col alignend>
-                        <Text label>Balance</Text>
+                        <Text className={styles.headerlabel} label>Balance</Text>
                         <Text>10.123 Waves</Text>
                     </Box>
                 </Box>
-                <Box className={styles.txinfo}>
-                    {this.getTxLogo()}
-                    <Text l descr>{this.getTxTitle()}</Text>
+                <Box className={styles.txdescription} col alignstart>
+                    <Box>
+                        {this.renderTxLogo()}
+                        <Text l descr>{this.getTxTitle()}</Text>
+                    </Box>
+                    <Tabs
+                        items={[ESignTab.MAIN, ESignTab.DETAILS, ESignTab.JSON]}
+                        value={selectedTab}
+                        onChange={(v) => this.onChangeTab(v)}
+                    />
                 </Box>
-                <Tabs
-                    items={[ESignTab.MAIN, ESignTab.DETAILS, ESignTab.JSON]}
-                    value={selectedTab}
-                    onChange={(v) => this.onChangeTab(v)}
-                />
-                {this.renderTab()}
-                <Button className={styles.btncancel} onClick={onCancel}>Отмена</Button>
+                <Box className={styles.txtabcontent} col>
+                    {this.renderTab()}
+                </Box>
+                <Box className={styles.footer}>
+                    <Button className={styles.btncancel} onClick={onCancel}>Отмена</Button>
+                </Box>
             </div>
         );
     }
@@ -76,21 +84,60 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
         const { selectedTab } = this.state;
 
         switch (selectedTab) {
-            case ESignTab.MAIN: return this.getMainTab();
-            case ESignTab.DETAILS: return this.getDetailsTab();
-            case ESignTab.JSON: return this.getJsonTab();
+            case ESignTab.MAIN: return this.renderMainTab();
+            case ESignTab.DETAILS: return this.renderDetailsTab();
+            case ESignTab.JSON: return this.renderJsonTab();
         }
     }
 
-    getMainTab() {
+    renderMainTab() {
         const { tx } = this.props;
 
         return (
-            <Box col>
+            <>
                 <Box className={styles.maininfo} col alignstart>
-                    <Text label className={styles.title}>TXID</Text>
-                    <Text className={styles.value}>{tx.id}aaaaaaaaaaaaaaa</Text>
+                    <Text label>TXID</Text>
+                    <Text className={styles.value}>{tx.id}3PF4AY38H14Kt7W5HwMxe2Q9YBz8eGxhDHf*</Text>
                 </Box>
+                {this.renderConfirmOnLedger()}
+            </>
+        );
+    }
+
+    renderDetailsTab() {
+        const { tx } = this.props;
+
+        return (
+            <>
+                <Box col>
+                    <Text>Recipient</Text>
+                    <Text>Fee</Text>
+                    <Text>dApp</Text>
+                    <Text>Function</Text>
+                    <Text>Payments</Text>
+                </Box>
+                {this.renderConfirmOnLedger()}
+            </>
+        );
+    }
+
+    renderJsonTab() {
+        const { tx } = this.props;
+
+        return (
+            <Textarea className={styles.jsonpreview}>
+                {this.renderJsonPreview(tx)}
+            </Textarea>
+        );
+    }
+
+    renderJsonPreview(json: any) {
+        return JSON.stringify(json, null, ' ');
+    }
+
+    renderConfirmOnLedger() {
+        return (
+            <Box className={styles.confirmonledger} col>
                 <Box center>
                     Сверьте данные на экране с данными в Ledger. <br />
                     Если данные совпадают, то подтвердите это на устройстве
@@ -102,29 +149,7 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
         );
     }
 
-    getDetailsTab() {
-        const { tx } = this.props;
-
-        return ('Details');
-    }
-
-    getJsonTab() {
-        const { tx } = this.props;
-
-        return (
-            <div>
-                <Textarea className={styles.jsonpreview}>
-                    {this.getJsonPreview(tx)}
-                </Textarea>
-            </div>
-        );
-    }
-
-    getJsonPreview(json: any) {
-        return JSON.stringify(json, null, ' ');
-    }
-
-    getTxLogo() {
+    renderTxLogo() {
         return (
             <Box className={styles.txlogo} center>
                 <SvgTxInvokeScriptLogo />
@@ -133,7 +158,9 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
     }
 
     getTxTitle() {
-        return 'Invoke Script Transaction';
+        const txName = getTxName(this.props.tx.type);
+
+        return `${txName} Transaction`;
     }
 
     onChangeTab(tab) {
