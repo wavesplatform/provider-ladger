@@ -65,6 +65,10 @@ export class ProviderLedger implements Provider {
     public async login(): Promise<UserData> {
         this.__log('login');
 
+        if(this.user) {
+            return this.user;
+        }
+
         closeDialog();
         if(!this.isLedgerInited()) {
             showConnectingDialog();
