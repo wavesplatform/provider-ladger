@@ -178,7 +178,9 @@ export class ProviderLedger implements Provider {
 
         return Promise.all(
             list.map((tx: SignerTx): Promise<any> => {
-                const publicKey: string = (this.user?.publicKey as string);
+                const publicKey: string = this.user!.publicKey;
+                const sender: string = this.user!.address;
+
                 let tx4ledger = signerTx2TxParams(tx);
                 // const signedTx = signTx(tx as any, publicKey);
                 // tx4ledger.id = '1'; // todo
@@ -190,7 +192,10 @@ export class ProviderLedger implements Provider {
                 });
 
                 closeDialog();
-                showSignTxDialog(tx4ledger, this.user!); // we must have user when try to sign tx
+                showSignTxDialog({
+                    ...tx4ledger,
+                    sender: sender
+                }, this.user!); // we must have user when try to sign tx
 
                 const data2sign = {
                     dataType: tx4ledger.type,
