@@ -74,7 +74,7 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
                     {this.renderTab()}
                 </Box>
                 <Box className={styles.footer}>
-                    <Button className={styles.btncancel} onClick={onCancel}>Отмена</Button>
+                    <Button className={styles.btncancel} onClick={onCancel}>Cancel</Button>
                 </Box>
             </div>
         );
@@ -97,7 +97,7 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
             <>
                 <Box className={styles.maininfo} col alignstart>
                     <Text label>TXID</Text>
-                    <Text className={styles.value}>{tx.id}3PF4AY38H14Kt7W5HwMxe2Q9YBz8eGxhDHf*</Text>
+                    <Text className={styles.value}>{tx.id}</Text>
                 </Box>
                 {this.renderConfirmOnLedger()}
             </>
@@ -125,7 +125,7 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
         const { tx } = this.props;
 
         return (
-            <Textarea className={styles.jsonpreview}>
+            <Textarea className={styles.jsonpreview} readOnly>
                 {this.renderJsonPreview(tx)}
             </Textarea>
         );
@@ -139,9 +139,13 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
         return (
             <Box className={styles.confirmonledger} col>
                 <Box center>
+                    Compare the address on the screen with the address on the Ledger.<br />
+                    If they match, confirm it on your device
+                </Box>
+                {/* <Box center>
                     Сверьте данные на экране с данными в Ledger. <br />
                     Если данные совпадают, то подтвердите это на устройстве
-                </Box>
+                </Box> */}
                 <Box className={styles.ledgerlogo}>
                     <SvgLedgerLogoConfirm />
                 </Box>

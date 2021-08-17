@@ -1,12 +1,13 @@
 import {
     SignerTx,
 } from '@waves/signer';
-import { ITransferParams, IInvokeScriptParams, WithSender } from '@waves/waves-transactions';
+import { ITransferParams, IInvokeScriptParams, WithSender, WithId } from '@waves/waves-transactions';
 
-type TxParams = ITransferParams | IInvokeScriptParams;
+// type TxParams = ITransferParams | IInvokeScriptParams;
+type ISignerTx2TxParams = ITransferParams & { type: TTxType, version: number } & WithId;
 type TTxType = 4 | 16;
 
-export const signerTx2TxParams = (signerTx: SignerTx): ITransferParams & { type: TTxType, version: number } => {
+export const signerTx2TxParams = (signerTx: SignerTx): ISignerTx2TxParams => {
     let tx;
 
     switch (signerTx.type) {

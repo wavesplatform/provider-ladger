@@ -181,9 +181,10 @@ export class ProviderLedger implements Provider {
                 const publicKey: string = this.user!.publicKey;
                 const sender: string = this.user!.address;
 
-                let tx4ledger = signerTx2TxParams(tx);
-                // const signedTx = signTx(tx as any, publicKey);
-                // tx4ledger.id = '1'; // todo
+                const tx4ledger = signerTx2TxParams(tx);
+                const signedTx = signTx(tx4ledger as any, publicKey) as any; // TODO typing
+
+                tx4ledger.id = signedTx.id; // todo
                 tx4ledger.senderPublicKey = publicKey;
 
                 const dataBuffer = makeTxBytes({

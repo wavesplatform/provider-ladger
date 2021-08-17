@@ -56,15 +56,15 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
 
         return (
             <Box className={styles.component} col>
-                <Text className={styles.title} xl>Выбор Ledger аккаунта</Text>
-                <Text className={styles.subtitle} l descr>Выберите адрес</Text>
+                <Text className={styles.title} xl>Choose Ledger account</Text>
+                <Text className={styles.subtitle} l descr>Choose your address</Text>
                 { state == ELoginState.LAST_AUTH ? this.renderLastAuth() : this.renderLedgerList() }
                 <Box className={styles.footer} center>
                     <Button
                         className={styles.btnconfirm}
                         onClick={this.onLogin.bind(this)}
                         disabled={selectedUser === null}
-                    >Подтвердить</Button>
+                    >Confirm</Button>
                 </Box>
             </Box>
         );
@@ -99,7 +99,7 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
                 </div>
                 <Box className={styles.chooseanother} onClick={() => this.onChooseAnother()}>
                     <Box className={styles.plusicon} center><SvgPlus /></Box>
-                    <Text>Выбрать другой адрес</Text>
+                    <Text>Choose another adress</Text>
                 </Box>
             </Box>
         );
@@ -120,9 +120,9 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
                                 selectedUser
                                 ? (
                                     <Box className={styles.accountinfo} col alignstart>
-                                        <Text label>Адрес аккаунта</Text>
+                                        <Text label>Account address</Text>
                                         <Text className={styles.fieldvalue}>{selectedUser?.address}</Text>
-                                        <Text className={styles.fieldtitle} label>ID аккаунта</Text>
+                                        <Text className={styles.fieldtitle} label>Account ID</Text>
                                         <Text className={styles.fieldvalue}>{selectedUser?.id}</Text>
                                     </Box>
                                 )
@@ -160,7 +160,7 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
 
         return (
             <Box className={styles.ledgeruser} col onClick={() => { this.onSelectUser(user) }}>
-                <IdentityImg hash='' />
+                <IdentityImg hash={user.address} />
                 <Text className={styles.ledgerusername} s inactive={!isSelected}>Аккаунт {index}</Text>
             </Box>
         );

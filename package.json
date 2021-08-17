@@ -25,6 +25,7 @@
     "@waves/signer": "1.0.2",
     "@waves/ts-types": "^0.3.0",
     "@waves/waves-transactions": "^4.2.1",
+    "identity-img": "^2.0.0",
     "ramda": "^0.26.1"
   },
   "devDependencies": {

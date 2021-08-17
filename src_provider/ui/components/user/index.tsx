@@ -25,10 +25,10 @@ export class UserComponent extends React.Component<IUserComponentProps> {
 
         return (
             <Box className={cn(styles.component)} onClick={() => this.onClick()}>
-                <IdentityImg  className={styles.avatar} hash='' />
+                <IdentityImg  className={styles.avatar} hash={user.address} />
                 <Box col alignstart>
                     <Box>
-                        <Text className={styles.label} s label>Мой адрес {user.id}</Text>&nbsp;&nbsp;
+                        <Text className={styles.label} s label>My address {user.id}</Text>&nbsp;&nbsp;
                         { latest ? <Text s second>Последний</Text> : null }
                     </Box>
                     <Text><Hash hash={user.address} short={short} /></Text>
