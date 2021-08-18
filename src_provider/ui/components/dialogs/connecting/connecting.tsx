@@ -7,23 +7,63 @@ import {
     Text,
 } from '../../../ui-kit'; // todo module
 
+import { EConnectingState } from '../../../../ProviderLedger.interface';
+
 import styles from './styles.less';
 
-export interface IConnectingProps {};
+export interface IConnectingProps {
+    getState: () => EConnectingState
+};
 
-export class ConnectingComponent extends React.Component<IConnectingProps> {
+interface IConnectingState {
+    statusText: string;
+}
+
+export class ConnectingComponent extends React.Component<IConnectingProps, IConnectingState> {
+    private updateTo: any; // NodeJs.Timer
+    constructor(props: IConnectingProps) {
+        super(props);
+
+        this.updateTo = null;
+
+        this.state = {
+            statusText: this.getText(EConnectingState.CONNECT_LEDGER)
+        };
+    }
+
     render() {
+        const { statusText } = this.state;
+
         return (
             <Box className={styles.component} col>
                 <Box className={styles.ledgerlogo}><SvgLedgerLogo /></Box>
                 <Text className={styles.title} xl>Подключение...</Text>
                 <Box col alignstart>
-                    <Text className={styles.subtitle} m descr>- Подключите устройство Ledger</Text>
-                    <Text className={styles.subtitle} m descr>- Введите ваш pin-code</Text>
-                    <Text className={styles.subtitle} m descr>- Откройте приложение WAVES</Text>
+                    <Text className={styles.subtitle} m descr>{statusText}</Text>
                 </Box>
                 <Loader className={styles.loader} />
             </Box>
         );
+    }
+
+    componentDidMount() {
+        this.updateTo = setTimeout(() => this.updateText(), 500);
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.updateTo);
+    }
+
+    updateText() {
+        this.setState({ statusText: this.getText(this.props.getState()) });
+    }
+
+    getText(state: EConnectingState) {
+        switch (state) {
+            case EConnectingState.CONNECT_LEDGER: return 'Connect Ledger device';
+            case EConnectingState.OPEN_WAVES_APP:
+            case EConnectingState.READY: return 'Open WAVES application';
+
+        }
     }
 }

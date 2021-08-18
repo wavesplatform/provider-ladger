@@ -26,9 +26,9 @@ export const signerTx2TxParams = (signerTx: SignerTx): ISignerTx2TxParams => {
         case 16:
             tx = {
                 timestamp: Date.now(),
-                fee: 500000, // todo from node
+                // fee: 500000, // todo from node
                 // feeAssetId: null,
-                version: 2, // todo check default version
+                version: 1, // todo check default version
                 ...signerTx,
                 type: (signerTx.type as TTxType), // todo
             };

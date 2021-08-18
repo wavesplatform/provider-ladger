@@ -20,10 +20,10 @@ import {
     closeDialog,
 } from './ui';
 import {
+    EConnectingState,
     IProviderLedgerConfig,
     ProviderSignedTx,
 } from './ProviderLedger.interface';
-import { takeLastWhile, then } from 'ramda';
 
 const DEFAULT_PROVIDER_CONFIG = {
     debug: false,
@@ -39,6 +39,7 @@ const DEFAULT_WAVES_LEDGER_CONFIG: IWavesLedgerConfig = {
 };
 
 export class ProviderLedger implements Provider {
+    private _connectingState: EConnectingState;
     private _providerConfig: IProviderLedgerConfig;
     // todo connect to network
     private _options: ConnectOptions = {
@@ -54,13 +55,13 @@ export class ProviderLedger implements Provider {
     public user: IUser | null = null;
 
     constructor(config?: IProviderLedgerConfig) {
+        this._connectingState = EConnectingState.CONNECT_LEDGER;
         this._providerConfig = config || DEFAULT_PROVIDER_CONFIG;
         this._ledgerConfig = config?.wavesLedgerConfig || DEFAULT_WAVES_LEDGER_CONFIG;
 
         this._loadFonts();
         this.__log('constructor');
     }
-
 
     public async login(): Promise<UserData> {
         this.__log('login');
@@ -69,16 +70,22 @@ export class ProviderLedger implements Provider {
             return this.user;
         }
 
+        this._connectingState = EConnectingState.CONNECT_LEDGER;
         closeDialog();
-        if(!this.isLedgerInited()) {
-            showConnectingDialog();
+        if(this.isLedgerInited()) {
+            //
+        } else {
+            showConnectingDialog(() => this.getConnectionState());
             try { await this.initWavesLedger(); } catch (er) { console.error('login :: initWavesLedger', er); }
         }
 
+        this._connectingState = EConnectingState.OPEN_WAVES_APP;
         const isWavesAppReady = await this.isWavesAppReady();
 
-        if(!isWavesAppReady) {
-            showConnectingDialog();
+        if(isWavesAppReady) {
+            //
+        } else {
+            showConnectingDialog(() => this.getConnectionState());
             let isReady: boolean = false;
             try { isReady = await this.awaitingWavesApp(); } catch (er) { console.error('login :: isWavesAppReady', er); }
 
@@ -89,6 +96,7 @@ export class ProviderLedger implements Provider {
             }
         }
 
+        this._connectingState = EConnectingState.READY;
         return this._login();
     }
 
@@ -182,7 +190,12 @@ export class ProviderLedger implements Provider {
                 const sender: string = this.user!.address;
 
                 const tx4ledger = signerTx2TxParams(tx);
-                const signedTx = signTx(tx4ledger as any, publicKey) as any; // TODO typing
+
+                /* TODO Magic fields for signTx */
+                tx4ledger.senderPublicKey = publicKey;
+                tx4ledger.chainId = this._ledgerConfig.networkCode;
+
+                const signedTx = signTx(tx4ledger as any, 'dummy') as any; // TODO typing
 
                 tx4ledger.id = signedTx.id; // todo
                 tx4ledger.senderPublicKey = publicKey;
@@ -291,6 +304,10 @@ export class ProviderLedger implements Provider {
                 this._isWavesAppReadyPromise = null;
                 return false;
             });
+    }
+
+    private getConnectionState(): EConnectingState {
+        return this._connectingState;
     }
 
     private _loadFonts() {

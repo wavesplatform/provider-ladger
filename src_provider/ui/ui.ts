@@ -14,6 +14,8 @@ import {
 } from './components'
 import { IPopupContainerProps, PopupContainer } from './containers';
 
+import { EConnectingState } from '../ProviderLedger.interface';
+
 const LSK_LAST_AUTH_USER_ID = 'pldata-auth-user-id';
 const LSK_AUTH_USER_LIST = 'pld-auth-user-list'
 
@@ -108,8 +110,10 @@ export const showSignTxDialog = (tx: any, user: IUser): void => {
 }
 
 
-export const showConnectingDialog = () => {
-    const reactElement = React.createElement<IConnectingProps>(ConnectingComponent);
+export const showConnectingDialog = (getState: () => EConnectingState) => {
+    const reactElement = React.createElement<IConnectingProps>(ConnectingComponent, {
+        getState: getState
+    });
 
     renderInContainer(reactElement);
 }
