@@ -1,6 +1,7 @@
 import {
     SignerTx,
 } from '@waves/signer';
+
 import { ITransferParams, IInvokeScriptParams, WithSender, WithId } from '@waves/waves-transactions';
 
 // type TxParams = ITransferParams | IInvokeScriptParams;
@@ -14,7 +15,7 @@ export const signerTx2TxParams = (signerTx: SignerTx): ISignerTx2TxParams => {
         case 4:
             tx = {
                 // default values
-                timestamp: Date.now(),
+                // timestamp: nodeTime.NTP,
                 fee: 500000, // todo from node
                 attachment: "",
                 version: 2, // todo check default version
@@ -25,7 +26,7 @@ export const signerTx2TxParams = (signerTx: SignerTx): ISignerTx2TxParams => {
             break;
         case 16:
             tx = {
-                timestamp: Date.now(),
+                // timestamp: nodeTime.NTP,
                 // fee: 500000, // todo from node
                 // feeAssetId: null,
                 version: 1, // todo check default version

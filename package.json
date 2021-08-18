@@ -20,8 +20,9 @@
   },
   "dependencies": {
     "@ledgerhq/hw-transport-webusb": "^6.2.0",
-    "@waves/ledger": "4.0.2-beta.3",
     "@types/ramda": "^0.26.38",
+    "@waves/ledger": "4.0.2-beta.3",
+    "@waves/node-api-js": "^1.2.3",
     "@waves/signer": "1.0.2",
     "@waves/ts-types": "^0.3.0",
     "@waves/waves-transactions": "^4.2.1",

@@ -16,6 +16,11 @@ import {
 
 import { UserComponent } from '../../user';
 
+import {
+    InvokeDetails,
+    TransferDetails,
+} from './txDetails';
+
 import styles from './styles.less'
 
 enum ESignTab {
@@ -30,11 +35,11 @@ export interface ISignTxComponentProps {
     tx: any; // todo tx type
     user: IUser;
     onCancel: () => void;
-}
+};
 
 interface ISignTxComponentState {
     selectedTab: ESignTab
-}
+};
 
 export class SignTxComponent extends React.Component<ISignTxComponentProps, ISignTxComponentState> {
 
@@ -109,13 +114,7 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
 
         return (
             <>
-                <Box col>
-                    <Text>Recipient</Text>
-                    <Text>Fee</Text>
-                    <Text>dApp</Text>
-                    <Text>Function</Text>
-                    <Text>Payments</Text>
-                </Box>
+                {this.getDetails(tx)}
                 {this.renderConfirmOnLedger()}
             </>
         );
@@ -159,6 +158,13 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
                 <SvgTxInvokeScriptLogo />
             </Box>
         );
+    }
+
+    getDetails (tx: any) { // todo tx type
+        switch (tx.type) {
+            case 4: return (<TransferDetails tx={tx} />);
+            case 16: return (<InvokeDetails tx={tx} />);
+        }
     }
 
     getTxTitle() {

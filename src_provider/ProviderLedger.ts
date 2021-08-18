@@ -8,6 +8,7 @@ import {
     TypedData,
     UserData,
 } from '@waves/signer';
+import { fetchNodeTime } from '@waves/node-api-js/es/api-node/utils';
 import { IUser, WavesLedgerSync, IWavesLedgerConfig } from '@waves/ledger';
 import { libs, makeTx, makeTxBytes, signTx } from '@waves/waves-transactions';
 // import { Waves } from '@waves/ledger/lib/Waves';
@@ -27,7 +28,7 @@ import {
 
 const DEFAULT_PROVIDER_CONFIG = {
     debug: false,
-}
+};
 
 const DEFAULT_WAVES_LEDGER_CONFIG: IWavesLedgerConfig = {
     debug: false,
@@ -111,7 +112,9 @@ export class ProviderLedger implements Provider {
     public async sign(list: Array<SignerTx>): Promise<Array<ProviderSignedTx>> {
         this.__log('sign', list);
 
-        if (this.user === null) {
+        const isWavesAppReady = await this.isWavesAppReady();
+
+        if (!isWavesAppReady || this.user === null) {
             await this.login();
         }
 
@@ -181,8 +184,10 @@ export class ProviderLedger implements Provider {
     }
 
 
-    private _sign(list: Array<SignerTx>): Promise<Array<ProviderSignedTx>> {
+    private async _sign(list: Array<SignerTx>): Promise<Array<ProviderSignedTx>> {
         this.__log('_sign', list);
+
+        const nodeTime = (await fetchNodeTime(this._options.NODE_URL)).NTP;
 
         return Promise.all(
             list.map((tx: SignerTx): Promise<any> => {
@@ -192,13 +197,13 @@ export class ProviderLedger implements Provider {
                 const tx4ledger = signerTx2TxParams(tx);
 
                 /* TODO Magic fields for signTx */
+                tx4ledger.timestamp = nodeTime;
                 tx4ledger.senderPublicKey = publicKey;
                 tx4ledger.chainId = this._ledgerConfig.networkCode;
 
                 const signedTx = signTx(tx4ledger as any, 'dummy') as any; // TODO typing
 
                 tx4ledger.id = signedTx.id; // todo
-                tx4ledger.senderPublicKey = publicKey;
 
                 const dataBuffer = makeTxBytes({
                     ...tx4ledger,
