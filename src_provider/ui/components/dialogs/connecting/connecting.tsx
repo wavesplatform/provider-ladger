@@ -59,11 +59,11 @@ export class ConnectingComponent extends React.Component<IConnectingProps, IConn
     }
 
     getText(state: EConnectingState) {
-        switch (state) {
-            case EConnectingState.CONNECT_LEDGER: return 'Connect Ledger device';
-            case EConnectingState.OPEN_WAVES_APP:
-            case EConnectingState.READY: return 'Open WAVES application';
-
-        }
+        return 'Connect Ledger device and open Waves app';
+        // switch (state) {
+        //     case EConnectingState.CONNECT_LEDGER: return 'Connect Ledger device';
+        //     case EConnectingState.OPEN_WAVES_APP:
+        //     case EConnectingState.READY: return 'Open WAVES application';
+        // }
     }
 }

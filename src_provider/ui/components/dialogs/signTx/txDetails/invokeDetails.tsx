@@ -43,7 +43,7 @@ export class InvokeDetails extends React.Component<IInvokeDetailsProps> {
 
         return tx.payment
             .map((payment) => {
-                return (<Text className={styles.payment}>{payment.amount}</Text>);
+                return (<Text className={styles.payment}>{payment.amount / 100000000}</Text>);
             });
     }
 
