@@ -14,11 +14,11 @@ export const signerTx2TxParams = (signerTx: SignerTx): ISignerTx2TxParams => {
     switch (signerTx.type) {
         case 4:
             tx = {
+                version: 2, // todo check default version
                 // default values
                 // timestamp: nodeTime.NTP,
                 fee: 500000, // todo from node
                 attachment: "",
-                version: 2, // todo check default version
                 // 
                 ...signerTx,
                 type: (signerTx.type as TTxType), // todo
@@ -26,10 +26,10 @@ export const signerTx2TxParams = (signerTx: SignerTx): ISignerTx2TxParams => {
             break;
         case 16:
             tx = {
-                // timestamp: nodeTime.NTP,
-                // fee: 500000, // todo from node
-                // feeAssetId: null,
                 version: 1, // todo check default version
+                // timestamp: nodeTime.NTP,
+                fee: 500000, // todo from node
+                // feeAssetId: null,
                 ...signerTx,
                 type: (signerTx.type as TTxType), // todo
             };
