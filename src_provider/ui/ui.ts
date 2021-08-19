@@ -99,11 +99,11 @@ export const showGetUserDialog = async (ledger: WavesLedgerSync): Promise<IUser>
     });
 }
 
-export const showSignTxDialog = (tx: any, user: IUser): void => {
+export const showSignTxDialog = (tx: any, user: IUser, onCancel: () => void): void => {
     const reactElement = React.createElement<ISignTxComponentProps>(SignTxComponent, {
         user: user,
         tx: tx,
-        onCancel: () => { closeDialog(); }
+        onCancel: () => { onCancel(); closeDialog(); }
     });
 
     renderInContainer(reactElement, true);

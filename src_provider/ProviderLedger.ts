@@ -13,6 +13,7 @@ import { IUser, WavesLedgerSync, IWavesLedgerConfig } from '@waves/ledger';
 import { libs, makeTx, makeTxBytes, signTx } from '@waves/waves-transactions';
 // import { Waves } from '@waves/ledger/lib/Waves';
 import { isUserCancelError, errorUserCancel, signerTx2TxParams, sleep } from './helpers';
+import { promiseWrapper } from './utils';
 import {
     showConnectingDialog,
     showConnectionErrorDialog,
@@ -191,6 +192,8 @@ export class ProviderLedger implements Provider {
 
         const promiseList = Promise.all(
             list.map((tx: SignerTx): Promise<any> => {
+                let ledgerSignPromise;
+
                 const publicKey: string = this.user!.publicKey;
                 const sender: string = this.user!.address;
 
@@ -212,9 +215,12 @@ export class ProviderLedger implements Provider {
 
                 closeDialog();
                 showSignTxDialog({
-                    ...tx4ledger,
-                    sender: sender
-                }, this.user!); // we must have user when try to sign tx
+                        ...tx4ledger,
+                        sender: sender
+                    },
+                    this.user!, // we must have user when try to sign tx
+                    () => { ledgerSignPromise.reject(errorUserCancel()) }
+                );
 
                 const data2sign = {
                     dataType: tx4ledger.type,
@@ -228,7 +234,9 @@ export class ProviderLedger implements Provider {
                     // feePrecision: tx.feePrecision ?? null,
                 };
 
-                return this._wavesLedger!.signTransaction(this.user!.id, data2sign)
+                const signTxPromiseWrap = promiseWrapper(this._wavesLedger!.signTransaction(this.user!.id, data2sign));
+
+                signTxPromiseWrap.promise
                     .then((proof: string): any => {
                         const proofs = (tx.proofs || []);
 
@@ -247,13 +255,18 @@ export class ProviderLedger implements Provider {
                         return signedTx;
                     })
                     .catch((er) => {
+                        closeDialog();
+
                         if (er && isUserCancelError(er.statusCode)) {
-                            closeDialog();
                             throw errorUserCancel();
                         } else {
                             throw er;
                         }
                     });
+
+                ledgerSignPromise = signTxPromiseWrap;
+
+                return signTxPromiseWrap.promise;
             })
         ) as any;
 
