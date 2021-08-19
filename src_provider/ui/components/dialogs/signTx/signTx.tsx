@@ -101,7 +101,7 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
         return (
             <>
                 <Box className={styles.maininfo} col alignstart>
-                    <Text label>TXID</Text>
+                    <Text label>Transaction ID</Text>
                     <Text className={styles.value}>{tx.id}</Text>
                 </Box>
                 {this.renderConfirmOnLedger()}
