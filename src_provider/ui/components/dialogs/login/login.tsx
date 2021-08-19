@@ -161,7 +161,7 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
         return (
             <Box className={styles.ledgeruser} col onClick={() => { this.onSelectUser(user) }}>
                 <IdentityImg hash={user.address} />
-                <Text className={styles.ledgerusername} s inactive={!isSelected}>Аккаунт {index}</Text>
+                <Text className={styles.ledgerusername} s inactive={!isSelected}>Account {index}</Text>
             </Box>
         );
     }

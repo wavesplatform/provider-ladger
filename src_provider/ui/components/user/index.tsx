@@ -29,7 +29,7 @@ export class UserComponent extends React.Component<IUserComponentProps> {
                 <Box col alignstart>
                     <Box>
                         <Text className={styles.label} s label>My address {user.id}</Text>&nbsp;&nbsp;
-                        { latest ? <Text s second>Последний</Text> : null }
+                        { latest ? <Text className={styles.last} s second>Last</Text> : null }
                     </Box>
                     <Text><Hash hash={user.address} short={short} /></Text>
                 </Box>
