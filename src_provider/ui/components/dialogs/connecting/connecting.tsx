@@ -37,7 +37,7 @@ export class ConnectingComponent extends React.Component<IConnectingProps, IConn
         return (
             <Box className={styles.component} col>
                 <Box className={styles.ledgerlogo}><SvgLedgerLogo /></Box>
-                <Text className={styles.title} xl>Подключение...</Text>
+                <Text className={styles.title} xl>Connecting...</Text>
                 <Box col alignstart>
                     <Text className={styles.subtitle} m descr>{statusText}</Text>
                 </Box>

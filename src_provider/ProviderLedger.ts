@@ -12,7 +12,7 @@ import { fetchNodeTime } from '@waves/node-api-js/es/api-node/utils';
 import { IUser, WavesLedgerSync, IWavesLedgerConfig } from '@waves/ledger';
 import { libs, makeTx, makeTxBytes, signTx } from '@waves/waves-transactions';
 // import { Waves } from '@waves/ledger/lib/Waves';
-import { signerTx2TxParams, sleep } from './helpers';
+import { isUserCancelError, errorUserCancel, signerTx2TxParams, sleep } from './helpers';
 import {
     showConnectingDialog,
     showConnectionErrorDialog,
@@ -189,7 +189,7 @@ export class ProviderLedger implements Provider {
 
         const nodeTime = (await fetchNodeTime(this._options.NODE_URL)).NTP;
 
-        return Promise.all(
+        const promiseList = Promise.all(
             list.map((tx: SignerTx): Promise<any> => {
                 const publicKey: string = this.user!.publicKey;
                 const sender: string = this.user!.address;
@@ -235,9 +235,6 @@ export class ProviderLedger implements Provider {
                         proofs.push(proof);
 
                         let signedTx: any = {
-                            // id: signedTx.id,
-                            senderPublicKey: publicKey,
-
                             // original
                             ...tx4ledger,
                             ...tx,
@@ -248,9 +245,19 @@ export class ProviderLedger implements Provider {
 
                         this.__log('sign :: signed tx', signedTx);
                         return signedTx;
+                    })
+                    .catch((er) => {
+                        if (er && isUserCancelError(er.statusCode)) {
+                            closeDialog();
+                            throw errorUserCancel();
+                        } else {
+                            throw er;
+                        }
                     });
             })
         ) as any;
+
+        return promiseList;
     }
 
     private async initWavesLedger(): Promise<null> {

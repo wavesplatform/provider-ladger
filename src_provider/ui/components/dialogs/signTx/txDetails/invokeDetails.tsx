@@ -5,6 +5,11 @@ import {
     Text
 } from '../../../../ui-kit'; // todo ui-kit
 
+import {
+    txCall2string,
+    getAssetId
+} from '../../../../../helpers'
+
 import styles from './styles.less'
 
 export interface IInvokeDetailsProps {
@@ -26,14 +31,14 @@ export class InvokeDetails extends React.Component<IInvokeDetailsProps> {
                         </>)
                     )
                 }
-                <Text label className={styles.label}>Fee</Text>
-                <Text className={styles.value}>{tx.fee / 100000000} WAVES</Text>
                 <Text label className={styles.label}>dApp</Text>
                 <Text className={styles.value}>{tx.dApp}</Text>
                 <Text label className={styles.label}>Function</Text>
-                <Text className={styles.value}>{this.renderFunction()}</Text>
+                <Text className={styles.value}>{txCall2string(tx.call)}</Text>
                 <Text label className={styles.label}>Payments</Text>
-                <Text className={styles.value}>{this.getPayments()}</Text>
+                {this.getPayments()}
+                <Text label className={styles.label}>Fee</Text>
+                <Text className={styles.value}>{tx.fee} WAVES</Text>
             </Box>
         );
     }
@@ -43,27 +48,8 @@ export class InvokeDetails extends React.Component<IInvokeDetailsProps> {
 
         return tx.payment
             .map((payment) => {
-                return (<Text className={styles.payment}>{payment.amount / 100000000}</Text>);
+                return (<Text className={styles.value}>{payment.amount} {getAssetId(payment.assetId)}</Text>);
             });
     }
 
-    renderFunction() {
-        const call = this.props.tx.call;
-        const func = call.function;
-        const args = call.args
-            .map(this.formatArg)
-            .join(', ');
-
-        return `${func}(${args})`;
-    }
-
-    formatArg(arg: any): string {
-        const value = arg.value;
-
-        if (typeof value === 'string') {
-            return String(`"${value}"`);
-        } else {
-            return String(value);
-        }
-    }
 }
