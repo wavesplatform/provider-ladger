@@ -192,7 +192,7 @@ export class ProviderLedger implements Provider {
 
         const promiseList = Promise.all(
             list.map((tx: SignerTx): Promise<any> => {
-                let ledgerSignPromise;
+                let ledgerSignPromiseWrapper;
 
                 const publicKey: string = this.user!.publicKey;
                 const sender: string = this.user!.address;
@@ -219,7 +219,7 @@ export class ProviderLedger implements Provider {
                         sender: sender
                     },
                     this.user!, // we must have user when try to sign tx
-                    () => { ledgerSignPromise.reject(errorUserCancel()) }
+                    () => { ledgerSignPromiseWrapper.reject(errorUserCancel()) }
                 );
 
                 const data2sign = {
@@ -234,9 +234,9 @@ export class ProviderLedger implements Provider {
                     // feePrecision: tx.feePrecision ?? null,
                 };
 
-                const signTxPromiseWrap = promiseWrapper(this._wavesLedger!.signTransaction(this.user!.id, data2sign));
+                ledgerSignPromiseWrapper = promiseWrapper(this._wavesLedger!.signTransaction(this.user!.id, data2sign));
 
-                signTxPromiseWrap.promise
+                return ledgerSignPromiseWrapper.promise
                     .then((proof: string): any => {
                         const proofs = (tx.proofs || []);
 
@@ -263,10 +263,6 @@ export class ProviderLedger implements Provider {
                             throw er;
                         }
                     });
-
-                ledgerSignPromise = signTxPromiseWrap;
-
-                return signTxPromiseWrap.promise;
             })
         ) as any;
 
