@@ -179,7 +179,7 @@ export class ProviderLedger implements Provider {
                 const networkCode = this._ledgerConfig.networkCode as ENetworkCode;
 // console.log(networkCode);
                 // const assetsBalance = await fetchBalanceDetails(getNodeBaseUrl(networkCode), sender);
-                // const balance = 0;
+                const balance = 0;
 // console.log('BALANCE', networkCode, assetsBalance);
                 const tx4ledger = signerTx2TxParams(tx);
 
