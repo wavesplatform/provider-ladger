@@ -140,8 +140,7 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
         return (
             <Box className={styles.confirmonledger} col>
                 <Box center>
-                    Compare details of the transaction on the screen<br />
-                    with the details on the Ledger.<br />
+                    Compare details of the transaction on the screen with the details on the Ledger.
                     If they match, confirm it on your device
                 </Box>
                 <Box className={styles.ledgerlogo}>
