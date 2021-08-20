@@ -9,13 +9,20 @@ import {
     UserData,
 } from '@waves/signer';
 import { fetchNodeTime } from '@waves/node-api-js/es/api-node/utils';
-// import { fetchBalanceDetails } from '@waves/node-api-js/es/api-node/addresses';
-
+import { fetchBalanceDetails } from '@waves/node-api-js/es/api-node/addresses';
+import { fetchAssetsDetails } from '@waves/node-api-js/es/api-node/assets';
 import { IUser, WavesLedgerSync, IWavesLedgerConfig } from '@waves/ledger';
 import { makeTxBytes, signTx } from '@waves/waves-transactions';
-// import { Waves } from '@waves/ledger/lib/Waves';
+
 import { ENetworkCode } from './interface';
-import { getNodeBaseUrl, isUserCancelError, errorUserCancel, signerTx2TxParams, sleep } from './helpers';
+import { getNodeBaseUrl,
+    isUserCancelError,
+    errorUserCancel,
+    signerTx2TxParams,
+    sleep,
+    getAssetInfoUrl,
+    WAVES_DECIMALS,
+} from './helpers';
 import { promiseWrapper } from './utils';
 import {
     showConnectingDialog,
@@ -39,7 +46,7 @@ const DEFAULT_WAVES_LEDGER_CONFIG: IWavesLedgerConfig = {
     openTimeout: 3000,
     listenTimeout: 30000,
     exchangeTimeout: 30000,
-    networkCode: 87,
+    networkCode: ENetworkCode.MAINNET,
     transport: HwTransportWebusb
 };
 
@@ -53,6 +60,7 @@ export class ProviderLedger implements Provider {
         NODE_URL: 'https://nodes.wavesplatform.com',
     };
     private _ledgerConfig: IWavesLedgerConfig;
+    private _nodeBaseUrl: string;
 
     private _wavesLedger: WavesLedgerSync | null = null;
     private _wavesLedgerConnection: any | null = null;
@@ -63,7 +71,11 @@ export class ProviderLedger implements Provider {
     constructor(config?: IProviderLedgerConfig) {
         this._connectingState = EConnectingState.CONNECT_LEDGER;
         this._providerConfig = config || DEFAULT_PROVIDER_CONFIG;
-        this._ledgerConfig = config?.wavesLedgerConfig || DEFAULT_WAVES_LEDGER_CONFIG;
+        this._ledgerConfig = {
+            ...DEFAULT_WAVES_LEDGER_CONFIG,
+            ...config?.wavesLedgerConfig
+        };
+        this._nodeBaseUrl = getNodeBaseUrl(this._ledgerConfig.networkCode!);
 
         this._loadFonts();
         this.__log('constructor');
@@ -167,24 +179,22 @@ export class ProviderLedger implements Provider {
     private async _sign(list: Array<SignerTx>): Promise<Array<ProviderSignedTx>> {
         this.__log('_sign', list);
 
-        const nodeTime = (await fetchNodeTime(this._options.NODE_URL)).NTP;
+        const publicKey: string = this.user!.publicKey;
+        const senderAddress: string = this.user!.address;
+
+        const nodeTime = await fetchNodeTime(this._options.NODE_URL);
+        const balanceDetails = await fetchBalanceDetails(this._nodeBaseUrl, senderAddress);
 
         const promiseList = Promise.all(
             list.map(async (tx: SignerTx): Promise<any> => {
                 let ledgerSignPromiseWrapper;
 
-                const publicKey: string = this.user!.publicKey;
-                const sender: string = this.user!.address;
-
-                const networkCode = this._ledgerConfig.networkCode as ENetworkCode;
-// console.log(networkCode);
-                // const assetsBalance = await fetchBalanceDetails(getNodeBaseUrl(networkCode), sender);
-                const balance = 0;
-// console.log('BALANCE', networkCode, assetsBalance);
                 const tx4ledger = signerTx2TxParams(tx);
+                const assetdDetails = await this.getAssetsDetails(tx);
+                const paymentsPrecision = this.getPaymentPrecission(tx, assetdDetails);
 
                 /* TODO Magic fields for signTx */
-                tx4ledger.timestamp = nodeTime;
+                tx4ledger.timestamp = nodeTime.NTP;
                 tx4ledger.senderPublicKey = publicKey;
                 tx4ledger.chainId = this._ledgerConfig.networkCode;
 
@@ -200,10 +210,11 @@ export class ProviderLedger implements Provider {
                 closeDialog();
                 showSignTxDialog({
                         ...tx4ledger,
-                        sender: sender
+                        sender: senderAddress
                     },
                     this.user!, // we must have user when try to sign tx,
-                    balance,
+                    assetdDetails,
+                    balanceDetails.available,
                     () => { ledgerSignPromiseWrapper.reject(errorUserCancel()) }
                 );
 
@@ -211,16 +222,14 @@ export class ProviderLedger implements Provider {
                     dataType: tx4ledger.type,
                     dataVersion: tx4ledger.version,
                     dataBuffer: dataBuffer,
-                    amountPrecision: 0,
-                    amount2Precision: 0,
-                    feePrecision: 0,
-                    // amountPrecision: tx.amountPrecision ?? null,
-                    // amount2Precision: tx.amount2Precision ?? null,
-                    // feePrecision: tx.feePrecision ?? null,
+                    amountPrecision: paymentsPrecision[0],
+                    amount2Precision: paymentsPrecision[1],
+                    feePrecision: WAVES_DECIMALS,
                 };
 
                 this._ledgerRequestsCount += 1;
 
+                this.__log('_sign :: data2sign', this.user!.id, data2sign);
                 const signTxPromise = this._wavesLedger!.signTransaction(this.user!.id, data2sign);
 
                 signTxPromise
@@ -366,6 +375,50 @@ export class ProviderLedger implements Provider {
 
     private getConnectionState(): EConnectingState {
         return this._connectingState;
+    }
+
+    private async getAssetsDetails(tx: any): Promise<any> {
+        let list = [];
+
+        if (tx.payment) {
+            list = tx.payment
+                .filter(item => item.assetId !== null)
+                .map(item => item.assetId);
+        }
+
+        let res: any = await fetchAssetsDetails(this._nodeBaseUrl, list);
+        let assetsDetails;
+
+        if (res[0] && res[0].assetId) {
+            assetsDetails = res.map((details) => {
+                return {
+                    ...details,
+                    assetInfoUrl: getAssetInfoUrl(this._ledgerConfig.networkCode!, details.assetId)
+                };
+            })
+        }
+
+        return assetsDetails;
+    }
+
+    private getPaymentPrecission(tx: any, assetdDetails: any) {
+        const precission = [0, 0];
+        const payment = tx.payment;
+
+        if (payment?.length) {
+            for(let i = 0; i < payment.length; i++) {
+                const assetId = payment[i].assetId;
+
+                if (assetId === null) {
+                    precission[i] = WAVES_DECIMALS;
+                } else {
+                    const assetDetail = assetdDetails.find(details => details.assetId === assetId);
+                    precission[i] = assetDetail.decimals;
+                }
+            }
+        }
+
+        return precission;
     }
 
     private _loadFonts() {

@@ -7,12 +7,13 @@ import {
 
 import {
     txCall2string,
-    getAssetId
+    waves,
 } from '../../../../../helpers'
 
 import styles from './styles.less'
 
 export interface IInvokeDetailsProps {
+    assetsDetails: any;
     tx: any; // todo tx type
 };
 
@@ -38,17 +39,32 @@ export class InvokeDetails extends React.Component<IInvokeDetailsProps> {
                 <Text label className={styles.label}>Payments</Text>
                 {this.getPayments()}
                 <Text label className={styles.label}>Fee</Text>
-                <Text className={styles.value}>{tx.fee} WAVES</Text>
+                <Text className={styles.value}>{waves.format(tx.fee)} WAVES</Text>
             </Box>
         );
     }
 
     getPayments() {
-        const { tx } = this.props;
+        const { tx, assetsDetails } = this.props;
 
         return tx.payment
             .map((payment) => {
-                return (<Text className={styles.value}>{payment.amount} {getAssetId(payment.assetId)}</Text>);
+                let amount: any;
+                let name: string | any;
+
+                if (payment.assetId === null) {
+                    amount = waves.format(payment.amount);
+                    name = waves.WAVES_SYMBOL;
+                } else {
+                    const details = assetsDetails.find((details) => {
+                        return details.assetId == payment.assetId;
+                    });
+
+                    amount = waves.format(payment.amount, details.decimals);
+                    name = (<a href={details.assetInfoUrl} target='_blank'>{details.name}</a>);
+                }
+
+                return (<Text className={styles.value}>{amount} {name}</Text>);
             });
     }
 

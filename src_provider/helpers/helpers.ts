@@ -17,7 +17,7 @@ export const signerTx2TxParams = (signerTx: SignerTx): ISignerTx2TxParams => {
                 version: 2, // todo check default version
                 // default values
                 // timestamp: nodeTime.NTP,
-                fee: 500000, // todo from node
+                fee: 500000,
                 attachment: "",
                 // 
                 ...signerTx,
@@ -28,7 +28,7 @@ export const signerTx2TxParams = (signerTx: SignerTx): ISignerTx2TxParams => {
             tx = {
                 version: 2, // todo check default version
                 // timestamp: nodeTime.NTP,
-                fee: 500000, // todo from node
+                fee: 500000,
                 // feeAssetId: null,
                 ...signerTx,
                 type: (signerTx.type as TTxType), // todo
@@ -65,8 +65,3 @@ export const txCall2string = (call: any) => {
 
     return `${func}(${args})`;
 }
-
-const DEFAULT_ASSET_ID = 'WAVES';
-export const getAssetId = (assetId: any) => {
-    return assetId == null ? DEFAULT_ASSET_ID : assetId;
-};

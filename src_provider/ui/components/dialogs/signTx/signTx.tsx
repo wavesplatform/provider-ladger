@@ -3,6 +3,7 @@ import React from 'react';
 import { IUser } from '@waves/ledger';
 
 import { getTxName } from '../../../helpers'; // todo ui-kit
+import { waves } from '../../../../helpers';
 
 import {
     Box,
@@ -31,7 +32,8 @@ enum ESignTab {
 
 export interface ISignTxComponentProps {
     // ledger: WavesLedgerSync;
-    balance?: number;
+    assetsDetails: any;
+    balance?: any;
     tx: any; // todo tx type
     user: IUser;
     onCancel: () => void;
@@ -59,10 +61,10 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
             <div className={styles.component}>
                 <Box className={styles.header} between>
                     <UserComponent user={user} short/>
-                    {/* <Box col alignend>
+                    <Box col alignend>
                         <Text className={styles.headerlabel} label>Balance</Text>
-                        <Text>{balance || 0} WAVES</Text>
-                    </Box> */}
+                        <Text>{waves.format(balance || 0)} WAVES</Text>
+                    </Box>
                 </Box>
                 <Box className={styles.txdescription} col alignstart>
                     <Box>
@@ -114,7 +116,7 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
 
         return (
             <>
-                {this.getDetails(tx)}
+                {this.getDetails()}
                 {this.renderConfirmOnLedger()}
             </>
         );
@@ -157,10 +159,12 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
         );
     }
 
-    getDetails (tx: any) { // todo tx type
+    getDetails () { // todo tx type
+        const { tx, assetsDetails } = this.props;
+
         switch (tx.type) {
             case 4: return (<TransferDetails tx={tx} />);
-            case 16: return (<InvokeDetails tx={tx} />);
+            case 16: return (<InvokeDetails tx={tx} assetsDetails={assetsDetails} />);
         }
     }
 
