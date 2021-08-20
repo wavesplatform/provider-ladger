@@ -52,17 +52,17 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
     }
 
     render() {
-        const { tx, user, onCancel } = this.props;
+        const { tx, user, balance, onCancel } = this.props;
         const { selectedTab } = this.state;
 
         return (
             <div className={styles.component}>
                 <Box className={styles.header} between>
                     <UserComponent user={user} short/>
-                    <Box col alignend>
+                    {/* <Box col alignend>
                         <Text className={styles.headerlabel} label>Balance</Text>
-                        <Text>10.123 Waves</Text>
-                    </Box>
+                        <Text>{balance || 0} WAVES</Text>
+                    </Box> */}
                 </Box>
                 <Box className={styles.txdescription} col alignstart>
                     <Box>

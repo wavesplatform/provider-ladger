@@ -9,10 +9,13 @@ import {
     UserData,
 } from '@waves/signer';
 import { fetchNodeTime } from '@waves/node-api-js/es/api-node/utils';
+// import { fetchBalanceDetails } from '@waves/node-api-js/es/api-node/addresses';
+
 import { IUser, WavesLedgerSync, IWavesLedgerConfig } from '@waves/ledger';
-import { libs, makeTx, makeTxBytes, signTx } from '@waves/waves-transactions';
+import { makeTxBytes, signTx } from '@waves/waves-transactions';
 // import { Waves } from '@waves/ledger/lib/Waves';
-import { isUserCancelError, errorUserCancel, signerTx2TxParams, sleep } from './helpers';
+import { ENetworkCode } from './interface';
+import { getNodeBaseUrl, isUserCancelError, errorUserCancel, signerTx2TxParams, sleep } from './helpers';
 import { promiseWrapper } from './utils';
 import {
     showConnectingDialog,
@@ -42,6 +45,7 @@ const DEFAULT_WAVES_LEDGER_CONFIG: IWavesLedgerConfig = {
 
 export class ProviderLedger implements Provider {
     private _connectingState: EConnectingState;
+    private _ledgerRequestsCount: number = 0;
     private _providerConfig: IProviderLedgerConfig;
     // todo connect to network
     private _options: ConnectOptions = {
@@ -68,37 +72,12 @@ export class ProviderLedger implements Provider {
     public async login(): Promise<UserData> {
         this.__log('login');
 
+        await this.insureWavesAppReady();
+
         if(this.user) {
             return this.user;
         }
 
-        this._connectingState = EConnectingState.CONNECT_LEDGER;
-        closeDialog();
-        if(this.isLedgerInited()) {
-            //
-        } else {
-            showConnectingDialog(() => this.getConnectionState());
-            try { await this.initWavesLedger(); } catch (er) { console.error('login :: initWavesLedger', er); }
-        }
-
-        this._connectingState = EConnectingState.OPEN_WAVES_APP;
-        const isWavesAppReady = await this.isWavesAppReady();
-
-        if(isWavesAppReady) {
-            //
-        } else {
-            showConnectingDialog(() => this.getConnectionState());
-            let isReady: boolean = false;
-            try { isReady = await this.awaitingWavesApp(); } catch (er) { console.error('login :: isWavesAppReady', er); }
-
-            if (!isReady) {
-                closeDialog();
-                await showConnectionErrorDialog();
-                return this.login();
-            }
-        }
-
-        this._connectingState = EConnectingState.READY;
         return this._login();
     }
 
@@ -113,9 +92,9 @@ export class ProviderLedger implements Provider {
     public async sign(list: Array<SignerTx>): Promise<Array<ProviderSignedTx>> {
         this.__log('sign', list);
 
-        const isWavesAppReady = await this.isWavesAppReady();
+        await this.insureWavesAppReady();
 
-        if (!isWavesAppReady || this.user === null) {
+        if (this.user === null) {
             await this.login();
         }
 
@@ -191,12 +170,17 @@ export class ProviderLedger implements Provider {
         const nodeTime = (await fetchNodeTime(this._options.NODE_URL)).NTP;
 
         const promiseList = Promise.all(
-            list.map((tx: SignerTx): Promise<any> => {
+            list.map(async (tx: SignerTx): Promise<any> => {
                 let ledgerSignPromiseWrapper;
 
                 const publicKey: string = this.user!.publicKey;
                 const sender: string = this.user!.address;
 
+                const networkCode = this._ledgerConfig.networkCode as ENetworkCode;
+// console.log(networkCode);
+                // const assetsBalance = await fetchBalanceDetails(getNodeBaseUrl(networkCode), sender);
+                // const balance = 0;
+// console.log('BALANCE', networkCode, assetsBalance);
                 const tx4ledger = signerTx2TxParams(tx);
 
                 /* TODO Magic fields for signTx */
@@ -218,7 +202,8 @@ export class ProviderLedger implements Provider {
                         ...tx4ledger,
                         sender: sender
                     },
-                    this.user!, // we must have user when try to sign tx
+                    this.user!, // we must have user when try to sign tx,
+                    balance,
                     () => { ledgerSignPromiseWrapper.reject(errorUserCancel()) }
                 );
 
@@ -234,7 +219,15 @@ export class ProviderLedger implements Provider {
                     // feePrecision: tx.feePrecision ?? null,
                 };
 
-                ledgerSignPromiseWrapper = promiseWrapper(this._wavesLedger!.signTransaction(this.user!.id, data2sign));
+                this._ledgerRequestsCount += 1;
+
+                const signTxPromise = this._wavesLedger!.signTransaction(this.user!.id, data2sign);
+
+                signTxPromise
+                    .then(() => this._ledgerRequestsCount -= 1)
+                    .catch(() => this._ledgerRequestsCount -= 1);
+
+                ledgerSignPromiseWrapper = promiseWrapper(signTxPromise);
 
                 return ledgerSignPromiseWrapper.promise
                     .then((proof: string): any => {
@@ -283,6 +276,44 @@ export class ProviderLedger implements Provider {
         return null;
     }
 
+    private async insureWavesAppReady(): Promise<boolean> {
+        this._connectingState = EConnectingState.CONNECT_LEDGER;
+
+        closeDialog();
+
+        if(this._ledgerRequestsCount > 0) {
+            await showConnectionErrorDialog();
+            return this.insureWavesAppReady();
+        }
+
+        if(this.isLedgerInited()) {
+            //
+        } else {
+            showConnectingDialog(() => this.getConnectionState());
+            try { await this.initWavesLedger(); } catch (er) { console.error('login :: initWavesLedger', er); }
+        }
+
+        this._connectingState = EConnectingState.OPEN_WAVES_APP;
+        const isAppReady = await this.isWavesAppReady();
+
+        if(isAppReady) {
+            this._connectingState = EConnectingState.READY;
+            return true;
+        } else {
+            showConnectingDialog(() => this.getConnectionState());
+            let isReady: boolean = false;
+            isReady = await this.awaitingWavesApp();
+
+            if (!isReady) {
+                closeDialog();
+                await showConnectionErrorDialog();
+                return this.insureWavesAppReady();
+            } else {
+                return true;
+            }
+        }
+    }
+
     private async awaitingWavesApp(): Promise<boolean> {
         const TRY_COUNT = 15;
         const TRY_DELAY = 1;
@@ -297,6 +328,7 @@ export class ProviderLedger implements Provider {
 
             count++;
             await sleep(TRY_DELAY);
+
             isAppReady = await this.isWavesAppReady();
         }
 
@@ -307,7 +339,12 @@ export class ProviderLedger implements Provider {
         return this._wavesLedger !== null;
     }
 
-    private async isWavesAppReady(): Promise<boolean> {
+    private isWavesAppReady(): Promise<boolean> {
+
+        if (this._wavesLedger === null) {
+            return Promise.resolve(false);
+        }
+
         if(!this._isWavesAppReadyPromise) {
             try {
                 this._isWavesAppReadyPromise = this._wavesLedger!.probeDevice();
