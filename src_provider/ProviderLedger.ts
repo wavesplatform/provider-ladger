@@ -281,8 +281,6 @@ export class ProviderLedger implements Provider {
         this.__log('_signMessage', data);
 
         const senderAddress: string = this.user!.address;
-        let ledgerSignPromiseWrapper;
-
         const balanceDetails = await fetchBalanceDetails(this._nodeBaseUrl, senderAddress);
 
         closeDialog();
@@ -295,9 +293,13 @@ export class ProviderLedger implements Provider {
 
         const signDataPromise = this._wavesLedger!.signMessage(this.user!.id, String(data));
 
-        ledgerSignPromiseWrapper = promiseWrapper(signDataPromise);
+        let ledgerSignPromiseWrapper = promiseWrapper(signDataPromise);
 
-        return ledgerSignPromiseWrapper;
+        ledgerSignPromiseWrapper.promise
+            .then(() => closeDialog())
+            .catch(() => closeDialog());
+
+        return ledgerSignPromiseWrapper.promise;
     }
 
     private async initWavesLedger(): Promise<null> {
