@@ -7,7 +7,7 @@ import styles from './styles.less';
 interface ITabProps extends React.ComponentPropsWithoutRef<'div'> {
     items: any[]
     value: any;
-    onChange: (vaue: any) => void;
+    onChange?: (vaue: any) => void;
 }
 
 export class Tabs extends React.Component<ITabProps> {

@@ -28,6 +28,7 @@ import {
     showConnectingDialog,
     showConnectionErrorDialog,
     showGetUserDialog,
+    showSignMessageDialog,
     showSignTxDialog,
     closeDialog,
 } from './ui';
@@ -120,11 +121,16 @@ export class ProviderLedger implements Provider {
         return Promise.resolve('/* TODO */');
     }
 
-    public signMessage(data: string | number): Promise<string> {
-        this.__log('signMessage');
+    public async signMessage(data: string | number): Promise<string> {
+        this.__log('signMessage', data);
 
-        console.error('Not implemented');
-        return Promise.resolve('/* TODO */');
+        await this.insureWavesAppReady();
+
+        if (this.user === null) {
+            await this.login();
+        }
+
+        return this._signMessage(data);
     }
 
     public connect(options: ConnectOptions): Promise<void> {
@@ -212,7 +218,7 @@ export class ProviderLedger implements Provider {
                         ...tx4ledger,
                         sender: senderAddress
                     },
-                    this.user!, // we must have user when try to sign tx,
+                    this.user!,
                     assetdDetails,
                     balanceDetails.available,
                     () => { ledgerSignPromiseWrapper.reject(errorUserCancel()) }
@@ -269,6 +275,29 @@ export class ProviderLedger implements Provider {
         ) as any;
 
         return promiseList;
+    }
+
+    public async _signMessage(data: string | number): Promise<string> {
+        this.__log('_signMessage', data);
+
+        const senderAddress: string = this.user!.address;
+        let ledgerSignPromiseWrapper;
+
+        const balanceDetails = await fetchBalanceDetails(this._nodeBaseUrl, senderAddress);
+
+        closeDialog();
+        showSignMessageDialog(
+            String(data),
+            this.user!,
+            balanceDetails.available,
+            () => { ledgerSignPromiseWrapper.reject(errorUserCancel()) }
+        );
+
+        const signDataPromise = this._wavesLedger!.signMessage(this.user!.id, String(data));
+
+        ledgerSignPromiseWrapper = promiseWrapper(signDataPromise);
+
+        return ledgerSignPromiseWrapper;
     }
 
     private async initWavesLedger(): Promise<null> {

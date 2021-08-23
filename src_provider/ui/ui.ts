@@ -6,11 +6,13 @@ import {
     IConnectingProps,
     IConnectionErrorProps,
     ILoginComponentProps,
+    ISignMessageComponentProps,
     ISignTxComponentProps,
     ConnectingComponent,
     ConnectionErrorComponent,
     LoginComponent,
-    SignTxComponent
+    SignMessageComponent,
+    SignTxComponent,
 } from './components'
 import { IPopupContainerProps, PopupContainer } from './containers';
 
@@ -110,6 +112,22 @@ export const showSignTxDialog = (
         tx: tx,
         user: user,
         assetsDetails,
+        balance: balance,
+        onCancel: () => { onCancel(); closeDialog(); }
+    });
+
+    renderInContainer(reactElement, true);
+}
+
+export const showSignMessageDialog = (
+    message: string,
+    user: IUser,
+    balance: any,
+    onCancel: () => void
+): void => {
+    const reactElement = React.createElement<ISignMessageComponentProps>(SignMessageComponent, {
+        message: message,
+        user: user,
         balance: balance,
         onCancel: () => { onCancel(); closeDialog(); }
     });

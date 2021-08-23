@@ -1,7 +1,6 @@
 import React from 'react';
 import { IUser } from '@waves/ledger';
 
-import { getTxName } from '../../../helpers'; // todo ui-kit
 import { waves } from '../../../../helpers';
 
 import {
@@ -9,41 +8,34 @@ import {
     Button,
     Tabs,
     Text,
-    Textarea,
     SvgTxInvokeScriptLogo,
     SvgLedgerLogoConfirm,
 } from '../../../ui-kit'; // todo ui-kit
 
 import { UserComponent } from '../../user';
 
-import {
-    InvokeDetails,
-    TransferDetails,
-} from './txDetails';
-
 import styles from './styles.less'
 
 enum ESignTab {
     MAIN = 'Main',
-    DETAILS = 'Details',
-    JSON = 'JSON',
+    // DETAILS = 'Details',
+    // JSON = 'JSON',
 }
 
-export interface ISignTxComponentProps {
-    assetsDetails: any;
+export interface ISignMessageComponentProps {
     balance?: any;
-    tx: any; // todo tx type
+    message: string;
     user: IUser;
     onCancel: () => void;
 };
 
-interface ISignTxComponentState {
+interface ISignMessageComponentState {
     selectedTab: ESignTab
 };
 
-export class SignTxComponent extends React.Component<ISignTxComponentProps, ISignTxComponentState> {
+export class SignMessageComponent extends React.Component<ISignMessageComponentProps, ISignMessageComponentState> {
 
-    constructor(props: ISignTxComponentProps) {
+    constructor(props: ISignMessageComponentProps) {
         super(props);
 
         this.state = {
@@ -52,7 +44,7 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
     }
 
     render() {
-        const { tx, user, balance, onCancel } = this.props;
+        const { user, balance, onCancel } = this.props;
         const { selectedTab } = this.state;
 
         return (
@@ -67,12 +59,11 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
                 <Box className={styles.txdescription} col alignstart>
                     <Box>
                         {this.renderTxLogo()}
-                        <Text l descr>{this.getTxTitle()}</Text>
+                        <Text l descr>Sing Custom Data</Text>
                     </Box>
                     <Tabs
-                        items={[ESignTab.MAIN, ESignTab.DETAILS, ESignTab.JSON]}
+                        items={[ESignTab.MAIN]}
                         value={selectedTab}
-                        onChange={(v) => this.onChangeTab(v)}
                     />
                 </Box>
                 <Box className={styles.txtabcontent} col>
@@ -90,48 +81,21 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
 
         switch (selectedTab) {
             case ESignTab.MAIN: return this.renderMainTab();
-            case ESignTab.DETAILS: return this.renderDetailsTab();
-            case ESignTab.JSON: return this.renderJsonTab();
         }
     }
 
     renderMainTab() {
-        const { tx } = this.props;
+        const { message } = this.props;
 
         return (
             <>
                 <Box className={styles.maininfo} col alignstart>
-                    <Text label>Transaction ID</Text>
-                    <Text className={styles.value}>{tx.id}</Text>
+                    <Text label>Message</Text>
+                    <Text className={styles.value}>{message}</Text>
                 </Box>
                 {this.renderConfirmOnLedger()}
             </>
         );
-    }
-
-    renderDetailsTab() {
-        const { tx } = this.props;
-
-        return (
-            <>
-                {this.getDetails()}
-                {this.renderConfirmOnLedger()}
-            </>
-        );
-    }
-
-    renderJsonTab() {
-        const { tx } = this.props;
-
-        return (
-            <Textarea className={styles.jsonpreview} readOnly>
-                {this.renderJsonPreview(tx)}
-            </Textarea>
-        );
-    }
-
-    renderJsonPreview(json: any) {
-        return JSON.stringify(json, null, ' ');
     }
 
     renderConfirmOnLedger() {
@@ -156,22 +120,4 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
         );
     }
 
-    getDetails () {
-        const { tx, assetsDetails } = this.props;
-
-        switch (tx.type) {
-            case 4: return (<TransferDetails tx={tx} />);
-            case 16: return (<InvokeDetails tx={tx} assetsDetails={assetsDetails} />);
-        }
-    }
-
-    getTxTitle() {
-        const txName = getTxName(this.props.tx.type);
-
-        return `${txName} Transaction`;
-    }
-
-    onChangeTab(tab) {
-        this.setState({ selectedTab: tab })
-    }
 }
