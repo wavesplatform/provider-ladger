@@ -2,7 +2,8 @@ import React from 'react';
 
 import {
     Box,
-    Text
+    Text,
+    Hash,
 } from '../../../../ui-kit'; // todo ui-kit
 
 import {
@@ -39,7 +40,7 @@ export class InvokeDetails extends React.Component<IInvokeDetailsProps> {
                 <Text label className={styles.label}>Payments</Text>
                 {this.getPayments()}
                 <Text label className={styles.label}>Fee</Text>
-                <Text className={styles.value}>{waves.format(tx.fee)} WAVES</Text>
+                <Text className={styles.value}>{waves.amountView(tx.fee)} WAVES</Text>
             </Box>
         );
     }
@@ -51,20 +52,30 @@ export class InvokeDetails extends React.Component<IInvokeDetailsProps> {
             .map((payment) => {
                 let amount: any;
                 let name: string | any;
+                let amountComponent;
 
-                if (payment.assetId === null) {
-                    amount = waves.format(payment.amount);
+                if (payment.assetId == null || payment.assetId == waves.WAVES_SYMBOL) {
+                    amount = waves.amountView(payment.amount);
                     name = waves.WAVES_SYMBOL;
+
+                    amountComponent = (<Text className={styles.value}>{amount} {name}</Text>);
                 } else {
                     const details = assetsDetails.find((details) => {
                         return details.assetId == payment.assetId;
                     });
 
-                    amount = waves.format(payment.amount, details.decimals);
+                    amount = waves.amountView(payment.amount, details.decimals);
                     name = (<a href={details.assetInfoUrl} target='_blank'>{details.name}</a>);
+
+                    amountComponent = (
+                        <Text className={styles.value}>
+                            <span>{amount} {name}</span>&nbsp;&nbsp;
+                            <Text label>(id: <Hash hash={payment.assetId} short/>)</Text>
+                        </Text>
+                    );
                 }
 
-                return (<Text className={styles.value}>{amount} {name}</Text>);
+                return amountComponent;
             });
     }
 

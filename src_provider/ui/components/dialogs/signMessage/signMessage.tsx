@@ -53,7 +53,7 @@ export class SignMessageComponent extends React.Component<ISignMessageComponentP
                     <UserComponent user={user} short/>
                     <Box col alignend>
                         <Text className={styles.headerlabel} label>Balance</Text>
-                        <Text>{waves.format(balance || 0)} WAVES</Text>
+                        <Text>{waves.amountView(balance || 0)} WAVES</Text>
                     </Box>
                 </Box>
                 <Box className={styles.txdescription} col alignstart>

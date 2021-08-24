@@ -470,7 +470,7 @@ export class ProviderLedger implements Provider {
         if (tx.type === 4) {
             const assetId = tx.assetId;
 
-            if (assetId == null) {
+            if (assetId == null || assetId == 'WAVES') {
                 precission[0] = WAVES_DECIMALS;
             } else {
                 const assetDetail = assetdDetails.find(details => details.assetId === assetId);
@@ -481,7 +481,7 @@ export class ProviderLedger implements Provider {
                 for(let i = 0; i < payment.length; i++) {
                     const assetId = payment[i].assetId;
 
-                    if (assetId === null) {
+                    if (assetId == null || assetId == 'WAVES') {
                         precission[i] = WAVES_DECIMALS;
                     } else {
                         const assetDetail = assetdDetails.find(details => details.assetId === assetId);

@@ -1,3 +1,5 @@
+import { view } from "ramda";
+
 export const WAVES_DECIMALS = 8;
 export const WAVES_PRECISSION = 1e2;
 
@@ -13,5 +15,11 @@ export const waves = {
         } else {
             return value;
         }
+    },
+
+    amountView(amount: number, decimals?: number): string {
+        const value = this.format(amount, decimals);
+
+        return String(Number(value).toFixed(10)).replace(/\.?0+$/,"");
     }
 };

@@ -2,7 +2,8 @@ import React from 'react';
 
 import {
     Box,
-    Text
+    Text,
+    Hash,
 } from '../../../../ui-kit'; // todo ui-kit
 
 import {
@@ -32,7 +33,7 @@ export class TransferDetails extends React.Component<ITransferDetailsProps> {
                     )
                 }
                 <Text label className={styles.label}>Fee</Text>
-                <Text className={styles.value}>{waves.format(tx.fee)} WAVES</Text>
+                <Text className={styles.value}>{waves.amountView(tx.fee)} WAVES</Text>
                 <Text label className={styles.label}>Amount</Text>
                 {this.getAmount()}
                 {
@@ -51,20 +52,30 @@ export class TransferDetails extends React.Component<ITransferDetailsProps> {
         const { tx, assetsDetails } = this.props;
         let { amount, assetId } = tx;
         let name;
+        let amountComponent;
 
-        if (assetId == null) {
-            amount = waves.format(amount);
+        if (assetId == null || assetId == waves.WAVES_SYMBOL) {
+            amount = waves.amountView(amount);
             name = waves.WAVES_SYMBOL;
+
+            amountComponent = <Text className={styles.value}>{amount} {name}</Text>;
         } else {
             const details = assetsDetails.find((details) => {
                 return details.assetId == assetId;
             });
 
-            amount = waves.format(amount, details.decimals);
+            amount = waves.amountView(amount, details.decimals);
             name = (<a href={details.assetInfoUrl} target='_blank'>{details.name}</a>);
+
+            amountComponent = (
+                <Text className={styles.value}>
+                    <span>{amount} {name}</span>&nbsp;&nbsp;
+                    <Text label>(id: <Hash hash={assetId} short/>)</Text>
+                </Text>
+            );
         }
 
-        return (<Text className={styles.value}>{amount} {name}</Text>);
+        return amountComponent;
     }
 
 }
