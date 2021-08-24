@@ -12,7 +12,7 @@ import {
 import styles from './styles.less'
 
 export interface ITransferDetailsProps {
-    // assetsDetails: any;
+    assetsDetails: any;
     tx: any; // todo tx type
 };
 
@@ -34,11 +34,37 @@ export class TransferDetails extends React.Component<ITransferDetailsProps> {
                 <Text label className={styles.label}>Fee</Text>
                 <Text className={styles.value}>{waves.format(tx.fee)} WAVES</Text>
                 <Text label className={styles.label}>Amount</Text>
-                <Text className={styles.value}>{tx.amount}</Text>
-                <Text label className={styles.label}>Attachment </Text>
-                <Text className={styles.value}>{tx.attachment}</Text>
+                {this.getAmount()}
+                {
+                    (
+                        tx.attachment && (<>
+                        <Text label className={styles.label}>Attachment </Text>
+                        <Text className={styles.value}>{tx.attachment}</Text>
+                        </>)
+                    )
+                }
             </Box>
         );
+    }
+
+    getAmount() {
+        const { tx, assetsDetails } = this.props;
+        let { amount, assetId } = tx;
+        let name;
+
+        if (assetId == null) {
+            amount = waves.format(amount);
+            name = waves.WAVES_SYMBOL;
+        } else {
+            const details = assetsDetails.find((details) => {
+                return details.assetId == assetId;
+            });
+
+            amount = waves.format(amount, details.decimals);
+            name = (<a href={details.assetInfoUrl} target='_blank'>{details.name}</a>);
+        }
+
+        return (<Text className={styles.value}>{amount} {name}</Text>);
     }
 
 }

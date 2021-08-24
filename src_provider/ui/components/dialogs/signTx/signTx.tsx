@@ -138,8 +138,10 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
         return (
             <Box className={styles.confirmonledger} col>
                 <Box center>
-                    Compare details of the transaction on the screen with the details on the Ledger.
-                    If they match, confirm it on your device
+                    <Text>
+                        Compare details of the transaction on the screen with the details on the Ledger.
+                        If they match, confirm it on your device
+                    </Text>
                 </Box>
                 <Box className={styles.ledgerlogo}>
                     <SvgLedgerLogoConfirm />
@@ -160,7 +162,7 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
         const { tx, assetsDetails } = this.props;
 
         switch (tx.type) {
-            case 4: return (<TransferDetails tx={tx} />);
+            case 4: return (<TransferDetails tx={tx} assetsDetails={assetsDetails} />);
             case 16: return (<InvokeDetails tx={tx} assetsDetails={assetsDetails} />);
         }
     }

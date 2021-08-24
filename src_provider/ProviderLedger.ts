@@ -8,11 +8,12 @@ import {
     TypedData,
     UserData,
 } from '@waves/signer';
+import { signBytes } from '@waves/ts-lib-crypto';
 import { fetchNodeTime } from '@waves/node-api-js/es/api-node/utils';
 import { fetchBalanceDetails } from '@waves/node-api-js/es/api-node/addresses';
 import { fetchAssetsDetails } from '@waves/node-api-js/es/api-node/assets';
 import { IUser, WavesLedgerSync, IWavesLedgerConfig } from '@waves/ledger';
-import { makeTxBytes, signTx } from '@waves/waves-transactions';
+import { makeTxBytes, signTx, serializeCustomData, libs, customData } from '@waves/waves-transactions';
 
 import { ENetworkCode } from './interface';
 import { getNodeBaseUrl,
@@ -197,7 +198,7 @@ export class ProviderLedger implements Provider {
 
                 const tx4ledger = signerTx2TxParams(tx);
                 const assetdDetails = await this.getAssetsDetails(tx);
-                const paymentsPrecision = this.getPaymentPrecission(tx, assetdDetails);
+                const paymentsPrecision = this.getAmountPrecission(tx, assetdDetails);
 
                 /* TODO Magic fields for signTx */
                 tx4ledger.timestamp = nodeTime.NTP;
@@ -235,7 +236,7 @@ export class ProviderLedger implements Provider {
 
                 this._ledgerRequestsCount += 1;
 
-                this.__log('_sign :: data2sign', this.user!.id, data2sign);
+                this.__log('_sign :: ledger', this.user!.id, data2sign);
                 const signTxPromise = this._wavesLedger!.signTransaction(this.user!.id, data2sign);
 
                 signTxPromise
@@ -277,6 +278,7 @@ export class ProviderLedger implements Provider {
         return promiseList;
     }
 
+    // should it be signSome data ?
     public async _signMessage(data: string | number): Promise<string> {
         this.__log('_signMessage', data);
 
@@ -291,13 +293,37 @@ export class ProviderLedger implements Provider {
             () => { ledgerSignPromiseWrapper.reject(errorUserCancel()) }
         );
 
-        const signDataPromise = this._wavesLedger!.signMessage(this.user!.id, String(data));
+        const msgBytes = libs.crypto.stringToBytes(String(data));
+        const base64 = 'base64:' + libs.crypto.base64Encode(msgBytes);
+
+        const bytes = serializeCustomData({
+            binary: base64,
+            version: 1,
+        });
+
+        const data4sign = {
+            dataBuffer: bytes
+        };
+
+        this.__log('_signMessage :: ledger', this.user!.id, data4sign);
+        const signDataPromise = this._wavesLedger!.signSomeData(this.user!.id, data4sign);
 
         let ledgerSignPromiseWrapper = promiseWrapper(signDataPromise);
 
         ledgerSignPromiseWrapper.promise
             .then(() => closeDialog())
             .catch(() => closeDialog());
+            // .then((res) => {
+            //     this.__log('_signMessage :: result', res);
+
+            //     closeDialog();
+
+            //     return res;
+            // })
+            // .catch((er) => {
+            //     closeDialog()
+            //     return er;
+            // });
 
         return ledgerSignPromiseWrapper.promise;
     }
@@ -409,12 +435,16 @@ export class ProviderLedger implements Provider {
     }
 
     private async getAssetsDetails(tx: any): Promise<any> {
-        let list = [];
+        let list: string[] = [];
 
         if (tx.payment) {
             list = tx.payment
                 .filter(item => item.assetId !== null)
                 .map(item => item.assetId);
+        }
+
+        if (tx.assetId) {
+            list.push(tx.assetId);
         }
 
         let res: any = await fetchAssetsDetails(this._nodeBaseUrl, list);
@@ -432,19 +462,31 @@ export class ProviderLedger implements Provider {
         return assetsDetails;
     }
 
-    private getPaymentPrecission(tx: any, assetdDetails: any) {
+    // todo rework
+    private getAmountPrecission(tx: any, assetdDetails: any) {
         const precission = [0, 0];
         const payment = tx.payment;
 
-        if (payment?.length) {
-            for(let i = 0; i < payment.length; i++) {
-                const assetId = payment[i].assetId;
+        if (tx.type === 4) {
+            const assetId = tx.assetId;
 
-                if (assetId === null) {
-                    precission[i] = WAVES_DECIMALS;
-                } else {
-                    const assetDetail = assetdDetails.find(details => details.assetId === assetId);
-                    precission[i] = assetDetail.decimals;
+            if (assetId == null) {
+                precission[0] = WAVES_DECIMALS;
+            } else {
+                const assetDetail = assetdDetails.find(details => details.assetId === assetId);
+                precission[0] = assetDetail.decimals;
+            }
+        } else if (tx.type = 16) {
+            if (payment?.length) {
+                for(let i = 0; i < payment.length; i++) {
+                    const assetId = payment[i].assetId;
+
+                    if (assetId === null) {
+                        precission[i] = WAVES_DECIMALS;
+                    } else {
+                        const assetDetail = assetdDetails.find(details => details.assetId === assetId);
+                        precission[i] = assetDetail.decimals;
+                    }
                 }
             }
         }
@@ -478,7 +520,7 @@ export class ProviderLedger implements Provider {
 
     private __log(tag: string, ...args) {
         if (this._providerConfig.debug) {
-            console.log(`ProviderLedger :: ${tag} `, ...args);
+            console.log(`ProviderLedger :: ${tag} : `, ...args);
         }
     }
 }

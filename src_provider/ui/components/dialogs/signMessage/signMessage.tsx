@@ -8,7 +8,7 @@ import {
     Button,
     Tabs,
     Text,
-    SvgTxInvokeScriptLogo,
+    SvgSignMessageLogo,
     SvgLedgerLogoConfirm,
 } from '../../../ui-kit'; // todo ui-kit
 
@@ -102,8 +102,10 @@ export class SignMessageComponent extends React.Component<ISignMessageComponentP
         return (
             <Box className={styles.confirmonledger} col>
                 <Box center>
-                    Compare details of the transaction on the screen with the details on the Ledger.
-                    If they match, confirm it on your device
+                    <Text>
+                        Compare details of the transaction on the screen with the details on the Ledger.
+                        If they match, confirm it on your device
+                    </Text>
                 </Box>
                 <Box className={styles.ledgerlogo}>
                     <SvgLedgerLogoConfirm />
@@ -115,7 +117,7 @@ export class SignMessageComponent extends React.Component<ISignMessageComponentP
     renderTxLogo() {
         return (
             <Box className={styles.txlogo} center>
-                <SvgTxInvokeScriptLogo />
+                <SvgSignMessageLogo />
             </Box>
         );
     }
