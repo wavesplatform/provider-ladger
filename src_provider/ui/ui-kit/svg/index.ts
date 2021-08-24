@@ -1,4 +1,5 @@
 export * from './SvgCrossError';
+export * from './SvgExclamation';
 export * from './SvgLedgerLogo';
 export * from './SvgLedgerLogoConfirm';
 export * from './SvgPlus';

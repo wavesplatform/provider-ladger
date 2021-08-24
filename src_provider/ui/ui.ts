@@ -8,6 +8,7 @@ import {
     ILoginComponentProps,
     ISignMessageComponentProps,
     ISignTxComponentProps,
+    BrowserNotSupportedComponent,
     ConnectingComponent,
     ConnectionErrorComponent,
     LoginComponent,
@@ -66,6 +67,10 @@ export const closeDialog = () => {
     if (container) {
         ReactDOM.unmountComponentAtNode(container);
     }
+}
+
+export const showBrowserNotSupportedDialog = (): void => {
+    renderInContainer(React.createElement(BrowserNotSupportedComponent));
 }
 
 export const showGetUserDialog = async (ledger: WavesLedgerSync): Promise<IUser> => {
@@ -134,7 +139,6 @@ export const showSignMessageDialog = (
 
     renderInContainer(reactElement, true);
 }
-
 
 export const showConnectingDialog = (getState: () => EConnectingState) => {
     const reactElement = React.createElement<IConnectingProps>(ConnectingComponent, {

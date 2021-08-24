@@ -8,7 +8,6 @@ import {
     TypedData,
     UserData,
 } from '@waves/signer';
-import { signBytes } from '@waves/ts-lib-crypto';
 import { fetchNodeTime } from '@waves/node-api-js/es/api-node/utils';
 import { fetchBalanceDetails } from '@waves/node-api-js/es/api-node/addresses';
 import { fetchAssetsDetails } from '@waves/node-api-js/es/api-node/assets';
@@ -24,8 +23,9 @@ import { getNodeBaseUrl,
     getAssetInfoUrl,
     WAVES_DECIMALS,
 } from './helpers';
-import { promiseWrapper } from './utils';
+import { isSupportedBrowser, promiseWrapper } from './utils';
 import {
+    showBrowserNotSupportedDialog,
     showConnectingDialog,
     showConnectionErrorDialog,
     showGetUserDialog,
@@ -86,6 +86,12 @@ export class ProviderLedger implements Provider {
     public async login(): Promise<UserData> {
         this.__log('login');
 
+        if (!isSupportedBrowser()) {
+            closeDialog();
+            showBrowserNotSupportedDialog();
+            throw 'Browser not supported';
+        }
+
         await this.insureWavesAppReady();
 
         if(this.user) {
@@ -105,6 +111,12 @@ export class ProviderLedger implements Provider {
 
     public async sign(list: Array<SignerTx>): Promise<Array<ProviderSignedTx>> {
         this.__log('sign', list);
+
+        if (!isSupportedBrowser()) {
+            closeDialog();
+            showBrowserNotSupportedDialog();
+            throw 'Browser not supported';
+        }
 
         await this.insureWavesAppReady();
 
