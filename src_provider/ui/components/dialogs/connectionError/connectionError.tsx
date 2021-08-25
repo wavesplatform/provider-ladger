@@ -23,8 +23,7 @@ export class ConnectionErrorComponent extends React.Component<IConnectionErrorPr
                 <Box className={styles.erroricon}><SvgCrossError /></Box>
                 <Text className={styles.title} xl>Can not connect to <br />Ledger device</Text>
                 <Text className={styles.subtitle} l descr>
-                    Please try again<br />
-                    If the error persists, refer to <a href="#">this article</a>
+                    Please try again
                 </Text>
                 <Button
                     className={styles.button}

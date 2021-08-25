@@ -400,7 +400,7 @@ export class ProviderLedger implements Provider {
     }
 
     private async awaitingWavesApp(): Promise<boolean> {
-        const TRY_COUNT = 15;
+        const TRY_COUNT = 30;
         const TRY_DELAY = 1;
 
         let count = 1;
