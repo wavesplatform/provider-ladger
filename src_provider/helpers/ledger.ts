@@ -1,3 +1,6 @@
+import { libs, serializeCustomData } from '@waves/waves-transactions';
+import { base58Encode, blake2b } from '@waves/ts-lib-crypto'
+
 // https://github.com/wavesplatform/ledger-app-waves/wiki/Integration-manual
 enum ELederError {
     // SW_OK = '0x9000',
@@ -17,4 +20,17 @@ enum ELederError {
 
 export const isUserCancelError = (code: number) => {
     return parseInt(ELederError.SW_USER_CANCELLED, 16) === code;
+};
+
+export const makeLedgerHashFromString = (value: string | number) => {
+
+    let strBytes = libs.crypto.stringToBytes(String(value));
+    let base64Encoded = libs.crypto.base64Encode(strBytes);
+
+    let serialized = serializeCustomData({version: 1, binary: base64Encoded});
+
+    const hash = base58Encode(blake2b(serialized));
+    console.log(hash);
+
+    return hash;
 };

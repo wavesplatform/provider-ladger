@@ -12,18 +12,23 @@ import { fetchNodeTime } from '@waves/node-api-js/es/api-node/utils';
 import { fetchBalanceDetails } from '@waves/node-api-js/es/api-node/addresses';
 import { fetchAssetsDetails } from '@waves/node-api-js/es/api-node/assets';
 import { IUser, WavesLedgerSync, IWavesLedgerConfig } from '@waves/ledger';
-import { makeTxBytes, signTx, serializeCustomData, libs, customData } from '@waves/waves-transactions';
+import { makeTxBytes, signTx, serializeCustomData, libs } from '@waves/waves-transactions';
 
 import { ENetworkCode } from './interface';
 import { getNodeBaseUrl,
     isUserCancelError,
-    errorUserCancel,
     signerTx2TxParams,
-    sleep,
     getAssetInfoUrl,
     WAVES_DECIMALS,
+    cleanTx,
+    makeLedgerHashFromString,
 } from './helpers';
-import { isSupportedBrowser, promiseWrapper } from './utils';
+import {
+    errorUserCancel,
+    isSupportedBrowser,
+    promiseWrapper,
+    sleep
+} from './utils';
 import {
     showBrowserNotSupportedDialog,
     showConnectingDialog,
@@ -123,6 +128,8 @@ export class ProviderLedger implements Provider {
         if (this.user === null) {
             await this.login();
         }
+
+        list.forEach(cleanTx); // todo make clean function
 
         return this._sign(list)
     }
@@ -299,7 +306,7 @@ export class ProviderLedger implements Provider {
 
         closeDialog();
         showSignMessageDialog(
-            String(data),
+            makeLedgerHashFromString(data),
             this.user!,
             balanceDetails.available,
             () => { ledgerSignPromiseWrapper.reject(errorUserCancel()) }
@@ -482,7 +489,7 @@ export class ProviderLedger implements Provider {
         if (tx.type === 4) {
             const assetId = tx.assetId;
 
-            if (assetId == null || assetId == 'WAVES') {
+            if (assetId == null) {
                 precission[0] = WAVES_DECIMALS;
             } else {
                 const assetDetail = assetdDetails.find(details => details.assetId === assetId);
@@ -493,7 +500,7 @@ export class ProviderLedger implements Provider {
                 for(let i = 0; i < payment.length; i++) {
                     const assetId = payment[i].assetId;
 
-                    if (assetId == null || assetId == 'WAVES') {
+                    if (assetId == null) {
                         precission[i] = WAVES_DECIMALS;
                     } else {
                         const assetDetail = assetdDetails.find(details => details.assetId === assetId);

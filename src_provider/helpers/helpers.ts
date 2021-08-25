@@ -4,6 +4,10 @@ import {
 
 import { ITransferParams, IInvokeScriptParams, WithSender, WithId } from '@waves/waves-transactions';
 
+import {
+    waves
+} from './waves';
+
 // type TxParams = ITransferParams | IInvokeScriptParams;
 type ISignerTx2TxParams = ITransferParams & { type: TTxType, version: number } & WithId;
 type TTxType = 4 | 16;
@@ -41,26 +45,46 @@ export const signerTx2TxParams = (signerTx: SignerTx): ISignerTx2TxParams => {
     return tx;
 };
 
-export const sleep = (seconds: number): Promise<void> => {
-    return new Promise((resolve, reject) => { setTimeout(resolve, seconds *1000); });
-};
+export const cleanTx = (tx: any) => {
+    if (tx.type === 4) {
+        if (tx.assetId === waves.WAVES_SYMBOL) {
+            tx.assetId = null;
+        }
+    } else if (tx.type === 16) {
+        if (tx.assetId === waves.WAVES_SYMBOL) {
+            tx.assetId = null;
+        }
 
-export const errorUserCancel = () => {
-    return new Error('User rejection!')
+        if (tx.payment) {
+            tx.payment.forEach((item) => {
+                if (item.assetId === waves.WAVES_SYMBOL) {
+                    item.assetId = null;
+                }
+            });
+        }
+    }
+}
+
+const primitive2view = (value: boolean | number | string | any) => {
+    if (typeof value === 'string') {
+        return String(`"${value}"`);
+    } else {
+        return String(value);
+    }
+}
+
+const arg2view = (arg: { type: string, value: any }) => {
+    if (arg.type === 'list') {
+        return `[${arg.value.map(arg2view)}]`;
+    } else {
+        return primitive2view(arg.value);
+    }
 }
 
 export const txCall2string = (call: any) => {
     const func = call.function;
     const args = call.args
-        .map((arg: any): string => {
-            const value = arg.value;
-
-            if (typeof value === 'string') {
-                return String(`"${value}"`);
-            } else {
-                return String(value);
-            }
-        })
+        .map(arg2view)
         .join(', ');
 
     return `${func}(${args})`;

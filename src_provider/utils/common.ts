@@ -13,3 +13,11 @@ export const isSupportedBrowser = (): boolean => {
         return true;
     }
 };
+
+export const sleep = (seconds: number): Promise<void> => {
+    return new Promise((resolve, reject) => { setTimeout(resolve, seconds *1000); });
+};
+
+export const errorUserCancel = () => {
+    return new Error('User rejection!')
+}

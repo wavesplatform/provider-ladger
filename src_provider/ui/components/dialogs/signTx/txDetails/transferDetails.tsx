@@ -54,7 +54,7 @@ export class TransferDetails extends React.Component<ITransferDetailsProps> {
         let name;
         let amountComponent;
 
-        if (assetId == null || assetId == waves.WAVES_SYMBOL) {
+        if (assetId == null) {
             amount = waves.amountView(amount);
             name = waves.WAVES_SYMBOL;
 

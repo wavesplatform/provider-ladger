@@ -26,19 +26,19 @@ export class InvokeDetails extends React.Component<IInvokeDetailsProps> {
         return (
             <Box className={styles.container} col>
                 {
-                    (
-                        tx.recipient && (<>
+                    tx.recipient ? (
+                        <>
                         <Text label className={styles.label}>Recipient</Text>
                         <Text className={styles.value}>{tx.recipient}</Text>
-                        </>)
-                    )
+                        </>
+                    ) : null
                 }
                 <Text label className={styles.label}>dApp</Text>
                 <Text className={styles.value}>{tx.dApp}</Text>
                 <Text label className={styles.label}>Function</Text>
                 <Text className={styles.value}>{txCall2string(tx.call)}</Text>
                 <Text label className={styles.label}>Payments</Text>
-                {this.getPayments()}
+                { tx.payment && tx.payment.length ? this.getPayments() : '—'}
                 <Text label className={styles.label}>Fee</Text>
                 <Text className={styles.value}>{waves.amountView(tx.fee)} WAVES</Text>
             </Box>
@@ -54,7 +54,7 @@ export class InvokeDetails extends React.Component<IInvokeDetailsProps> {
                 let name: string | any;
                 let amountComponent;
 
-                if (payment.assetId == null || payment.assetId == waves.WAVES_SYMBOL) {
+                if (payment.assetId == null) {
                     amount = waves.amountView(payment.amount);
                     name = waves.WAVES_SYMBOL;
 
