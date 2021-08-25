@@ -55,7 +55,7 @@ export class TransferDetails extends React.Component<ITransferDetailsProps> {
         let amountComponent;
 
         if (assetId == null) {
-            amount = waves.amountView(amount);
+            amount = waves.amountView(amount, 8);
             name = waves.WAVES_SYMBOL;
 
             amountComponent = <Text className={styles.value}>{amount} {name}</Text>;

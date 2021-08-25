@@ -61,7 +61,7 @@ export class SignTxComponent extends React.Component<ISignTxComponentProps, ISig
                     <UserComponent user={user} short/>
                     <Box col alignend>
                         <Text className={styles.headerlabel} label>Balance</Text>
-                        <Text>{waves.amountView(balance || 0)} WAVES</Text>
+                        <Text>{waves.format(balance || 0, 8).toFixed(2)} WAVES</Text>
                     </Box>
                 </Box>
                 <Box className={styles.txdescription} col alignstart>

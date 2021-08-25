@@ -55,7 +55,7 @@ export class InvokeDetails extends React.Component<IInvokeDetailsProps> {
                 let amountComponent;
 
                 if (payment.assetId == null) {
-                    amount = waves.amountView(payment.amount);
+                    amount = waves.amountView(payment.amount, 8);
                     name = waves.WAVES_SYMBOL;
 
                     amountComponent = (<Text className={styles.value}>{amount} {name}</Text>);

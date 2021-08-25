@@ -1,7 +1,4 @@
-import { view } from "ramda";
-
 export const WAVES_DECIMALS = 8;
-export const WAVES_PRECISSION = 1e2;
 
 export const waves = {
     WAVES_SYMBOL: 'WAVES',
@@ -11,7 +8,7 @@ export const waves = {
         let value = amount / decimals;
 
         if (value > 1) {
-            return Math.floor(amount / decimals * WAVES_PRECISSION) / WAVES_PRECISSION;
+            return amount / decimals;
         } else {
             return value;
         }
