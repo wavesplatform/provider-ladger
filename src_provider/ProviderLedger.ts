@@ -294,7 +294,12 @@ export class ProviderLedger implements Provider {
             })
         ) as any;
 
-        return promiseList;
+        // return promiseList;
+        // TODO remove this crutch
+        return promiseList
+            .then((list) => {
+                return list[0];
+            });
     }
 
     // should it be signSome data ?
