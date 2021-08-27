@@ -10,6 +10,8 @@ import {
     IdentityImg,
     SvgPlus,
     Text,
+    SvgArrowLeft,
+    SvgArrowRight,
 } from '../../../ui-kit'; // todo ui-kit
 
 import styles from './styles.less';
@@ -30,10 +32,12 @@ interface IloginComponentState {
     state: ELoginState;
     selectedUser: IUser | null;
     ledgerUserList: IUser[];
-    // paginationIndex: number;
+    isLoadingPage: boolean;
+    loadedPage: number;
+    currentPage: number;
 }
 
-const USER_PER_PAGE = 3;
+const USER_PER_PAGE = 5;
 
 export class LoginComponent extends React.Component<ILoginComponentProps, IloginComponentState> {
     constructor(props: ILoginComponentProps) {
@@ -45,9 +49,10 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
         this.state = {
             selectedUser: isAuthUser && selectedUser ? selectedUser : null,
             state: isAuthUser ? ELoginState.LAST_AUTH : ELoginState.LEDGER_LIST,
-            // authUserList: props.authUserList || [],
             ledgerUserList: [],
-            // paginationIndex: 0
+            isLoadingPage: false,
+            loadedPage: 0,
+            currentPage: 0
         };
     }
 
@@ -72,19 +77,30 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
 
     componentDidMount() {
         if (this.state.state === ELoginState.LEDGER_LIST)   {
-            this.loadLedgerUsers();
+            this.loadNextPage();
         }
     }
 
-    loadLedgerUsers() {
+    loadNextPage() {
         const { ledger } = this.props;
-        const { selectedUser } = this.state;
+        const { selectedUser, loadedPage, isLoadingPage } = this.state;
 
-        ledger.getPaginationUsersData(0, 6)
+        if (isLoadingPage) {
+            return;
+        }
+
+        const page = this.getPage(loadedPage);
+
+        this.setState({ isLoadingPage: true });
+        ledger.getPaginationUsersData(page.start, USER_PER_PAGE - 1)
             .then((users: IUser[]) => {
+                const { ledgerUserList } = this.state;
+
                 this.setState({
+                    isLoadingPage: false,
+                    loadedPage: loadedPage + 1,
                     selectedUser: selectedUser ? selectedUser : users[0], // todo remove auto set
-                    ledgerUserList: users
+                    ledgerUserList: ledgerUserList.concat(users)
                 });
             });
     }
@@ -106,34 +122,48 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
     }
 
     renderLedgerList() {
-        const { ledgerUserList, selectedUser } = this.state;
+        const { ledgerUserList, selectedUser, currentPage } = this.state;
 
-        return (
-            <Box className={styles.ledgerusers} col>
-                {   ledgerUserList?.length > 0
-                    ? (
-                        <>
-                            <Box className={styles.ledgeruserlist}>
+        if(ledgerUserList?.length == 0) {
+            return (
+                <Box className={styles.ledgerusers} col>
+                    <Text>Загрузка аккаунтов...</Text>
+                </Box>
+            );
+        } else {
+            const position = `-${100*currentPage}%`;
+
+            return (
+                <Box className={styles.ledgerusers} col>
+                    <Box className={styles.slider}>
+                        <Box className={cn(styles.arrow, styles.prev)} onClick={this.onPrevPage.bind(this)}>
+                            <SvgArrowLeft />
+                        </Box>
+                        <Box className={cn(styles.arrow, styles.next)} onClick={this.onNextPage.bind(this)}>
+                            <SvgArrowRight />
+                        </Box>
+                        <div className={styles.ledgeruserlistcontainer}>
+                            <Box className={styles.ledgeruserlist} style={{ left: position }}>
                                 {ledgerUserList.map(this.renderLedgerUser, this)}
+                                <Box className={styles.loadingpage}><Text>Загрузка аккаунтов...</Text></Box>
                             </Box>
-                            {
-                                selectedUser
-                                ? (
-                                    <Box className={styles.accountinfo} col alignstart>
-                                        <Text label>Account address</Text>
-                                        <Text className={styles.fieldvalue}>{selectedUser?.address}</Text>
-                                        <Text className={styles.fieldtitle} label>Account ID</Text>
-                                        <Text className={styles.fieldvalue}>{selectedUser?.id}</Text>
-                                    </Box>
-                                )
-                                : ''
-                            }
-                        </>
-                    )
-                    : 'Загрузка аккаунтов...'
-                }
-            </Box>
-        );
+                        </div>
+                    </Box>
+                    {
+                        selectedUser
+                        ? (
+                            <Box className={styles.accountinfo} col alignstart>
+                                <Text label>Account address</Text>
+                                <Text className={styles.fieldvalue}>{selectedUser?.address}</Text>
+                                <Text className={styles.fieldtitle} label>Account ID</Text>
+                                <Text className={styles.fieldvalue}>{selectedUser?.id}</Text>
+                            </Box>
+                        )
+                        : ''
+                    }
+                </Box>
+            );
+        }
     }
 
     renderAuthUser(user: IUser) {
@@ -182,7 +212,7 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
         });
 
         if(this.state.ledgerUserList.length === 0) {
-            this.loadLedgerUsers();
+            this.loadNextPage();
         }
     }
 
@@ -197,5 +227,34 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
         if (state.selectedUser) {
             props.onLogin(state.selectedUser);
         }
+    }
+
+    onPrevPage() {
+        const { currentPage } = this.state;
+        const page = currentPage - 1;
+
+        if (currentPage == 0) {
+            return;
+        }
+
+        this.setState({ currentPage: page });
+        console.log(page);
+    }
+
+    onNextPage() {
+        const { currentPage, loadedPage } = this.state;
+        const page = currentPage + 1;
+        const isLastPage = (currentPage == loadedPage - 1)
+
+        if (currentPage >= loadedPage) {
+            return;
+        }
+
+        if (isLastPage) {
+            this.loadNextPage();
+        }
+
+        this.setState({ currentPage: page });
+        console.log(page);
     }
 }

@@ -33,7 +33,7 @@ import {
     showBrowserNotSupportedDialog,
     showConnectingDialog,
     showConnectionErrorDialog,
-    showGetUserDialog,
+    showLoginDialog,
     showSignMessageDialog,
     showSignTxDialog,
     closeDialog,
@@ -192,7 +192,7 @@ export class ProviderLedger implements Provider {
         this.__log('_login');
 
         closeDialog();
-        return showGetUserDialog(this._wavesLedger!)
+        return showLoginDialog(this._wavesLedger!)
             .then((user) => {
                 this.user =  user;
 

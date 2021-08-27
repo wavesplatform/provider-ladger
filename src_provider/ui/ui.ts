@@ -73,7 +73,7 @@ export const showBrowserNotSupportedDialog = (): void => {
     renderInContainer(React.createElement(BrowserNotSupportedComponent));
 }
 
-export const showGetUserDialog = async (ledger: WavesLedgerSync): Promise<IUser> => {
+export const showLoginDialog = async (ledger: WavesLedgerSync): Promise<IUser> => {
     const uidSV = localStorage.getItem(LSK_LAST_AUTH_USER_ID);
     const ulistSV = localStorage.getItem(LSK_AUTH_USER_LIST);
 

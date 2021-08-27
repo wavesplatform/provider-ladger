@@ -1,3 +1,5 @@
+export * from './SvgArrowLeft';
+export * from './SvgArrowRight';
 export * from './SvgCrossError';
 export * from './SvgExclamation';
 export * from './SvgLedgerLogo';

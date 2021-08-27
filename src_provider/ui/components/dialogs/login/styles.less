@@ -36,10 +36,48 @@
     overflow-y: scroll;
 }
 
-.ledgeruserlist {
+.slider {
+    position: relative;
     height: 62px;
     width: 340px;
-    overflow-x: scroll;
+}
+
+.arrow {
+    position: absolute;
+    top: 13px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.prev {
+    left: -16px;
+}
+
+.next {
+    right: -16px;
+}
+
+.ledgeruserlistcontainer {
+    position: relative;
+    height: 100%;
+    width: 340px;
+    overflow: hidden;
+}
+
+.ledgeruserlist {
+    position: relative;
+    height: 100%;
+    left: 0;
+    transition: left 0.5s ease;
+}
+
+.loadingpage {
+    flex: 0 0 340px;
+    top: -10px;
+    position: relative;
+    text-align: center;
+    padding-left: 92px;
 }
 
 .avatar {
@@ -80,13 +118,14 @@
 }
 
 .ledgeruser {
-    margin: 0 4px;
-    flex: 0 0 60px;
+    margin: 0 2px;
+    flex: 0 0 64px;
     cursor: pointer;
 }
 
 .ledgerusername {
     margin-top: 8px;
+    white-space: nowrap;
 }
 
 .plusicon {
