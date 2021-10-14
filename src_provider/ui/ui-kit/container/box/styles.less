@@ -1,0 +1,37 @@
+.component {
+    /* default */
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    
+    &.col {
+        flex-direction: column;
+    }
+
+    /*  align */
+    &.alignstart {
+        align-items: start;
+    }
+
+    &.alignend {
+        align-items: flex-end; // todo check cross browser
+    }
+
+    /* justify */
+    // &.start {
+    //     justify-content: start;
+    // }
+
+    &.center {
+        justify-content: center;
+        text-align: center; // todo recheck with text nodes
+    }
+
+    &.end {
+        justify-content: end;
+    }
+
+    &.between {
+        justify-content: space-between;
+    }
+}

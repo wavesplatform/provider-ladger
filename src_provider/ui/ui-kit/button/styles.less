@@ -1,0 +1,17 @@
+@import "../../theme/default.less"; // todo module import
+
+.component {
+    .button();
+
+    &[disabled] {
+        background: @btn-disabled-back-color;
+    }
+
+}
+
+.buttonicon {
+    .button-icon();
+
+    height: @block-height;
+    width: @block-height;
+}

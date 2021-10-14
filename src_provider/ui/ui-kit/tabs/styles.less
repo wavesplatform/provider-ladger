@@ -1,0 +1,26 @@
+@import "../../theme/default.less"; // todo module import
+
+.component {
+
+    height: 40px;
+
+    .tab {
+        position: relative;
+        height: 40px;
+        min-width: 16px;
+        margin-right: 32px;
+        cursor: pointer;
+    }
+
+    .active {
+        cursor: default;
+    }
+
+    .line {
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        bottom: 0;
+        background: @tab-line-color;
+    }
+}

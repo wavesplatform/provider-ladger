@@ -1,96 +1,52 @@
-const webpack = require('webpack');
-const { resolve, join } = require('path');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require("webpack");
+const path = require('path');
+const resolve = path.resolve;
 
-const getGeneralConfig = (minimize) => ({
-    module: {
-        rules: [
-            {
-                test: /\.tsx?$/,
-                use: {
-                    loader: 'ts-loader',
-                    options: {
-                        configFile: resolve('tsconfig.build.json')
-                    }
-                },
-                exclude: /node_modules/,
-            },
-            {
-                test: /\.less$/,
-                use: [
-                    {
-                        loader: 'style-loader', // creates style nodes from JS strings
-                    },
-                    {
-                        loader: 'css-loader', // translates CSS into CommonJS
-                    },
-                    {
-                        loader: 'less-loader', // compiles Less to CSS
-                    },
-                ]
-            }
-        ],
-    },
-    resolve: {
-        extensions: ['.tsx', '.ts', '.js'],
-        modules: ['node_modules']
-    },
-    mode: minimize ? "production" : "development",
-    devtool: minimize ? undefined : "inline-source-map",
-})
-
-const buildIframeEntry = (minimize) => ({
-    ...getGeneralConfig(minimize),
-    entry: join(__dirname, 'src/iframe-entry/index.ts'),
-    plugins: [
-        new CleanWebpackPlugin(),
-        new HtmlWebpackPlugin({
-            template: join(__dirname, 'src', 'index.html'),
-            filename: join(__dirname, 'iframe-entry', 'index.html')
-        }),
-        new webpack.NodeEnvironmentPlugin(['NODE_ENV'])
-    ],
-    optimization: {
-        minimize,
-        usedExports: true,
-        moduleIds: 'hashed',
-        splitChunks: {
-            cacheGroups: {
-                vendor: {
-                    test: /[\\/]node_modules[\\/]/,
-                    name: 'vendors',
-                    chunks: 'all',
-                }
-            }
-        }
-    },
-    output: {
-        libraryTarget: "umd",
-        globalObject: "this",
-        filename: minimize ? '[name].[contenthash].min.js' : '[name].[contenthash].js',
-        path: resolve(__dirname, 'iframe-entry/dist'),
-    }
-});
-
-const buildLibrary = (minimize) => ({
-    ...getGeneralConfig(minimize),
-    entry: join(__dirname, 'src/provider/index.ts'),
-    optimization: {
-        minimize,
-        usedExports: true,
-    },
-    output: {
-        library: 'providerLedger',
-        libraryTarget: "umd",
-        globalObject: "this",
-        filename: minimize ? 'provider-ledger.min.js' : 'provider-ledger.js',
-        path: resolve(__dirname, 'dist'),
-    }
+const time = new Date().toLocaleDateString('ru', { hour: 'numeric', minute: 'numeric', second: 'numeric' });
+const definePLugin = new webpack.DefinePlugin({
+    VERSION: time,
 });
 
 module.exports = [
-    buildIframeEntry(true),
-    buildLibrary(true),
-    buildLibrary(false)
+    {
+        entry: './src_provider/index.ts',
+        mode: "production",
+        module: {
+            rules: [
+                {
+                    test: /\.ts/,
+                    use: 'ts-loader',
+                    exclude: /node_modules/,
+                },
+                {
+                    test: /\.less$/,
+                    use: [
+                        // conf.mode === 'production' ? MiniCssExtractPlugin.loader : 
+                        { loader: "style-loader" },
+                        {
+                            loader: "css-loader",
+                            options: {
+                                modules: true,
+                                localIdentName: '[folder]__[local]--[hash:base64:5]',
+                            }
+                        },
+                        {
+                            loader: "less-loader",
+                            options: { root: path.resolve(__dirname, './') }
+                        },
+                    ]
+                },
+            ],
+        },
+        resolve: {
+            extensions: ['.tsx', '.ts', '.js'],
+        },
+        output: {
+            libraryTarget: 'umd',
+            globalObject: 'this',
+            library: 'providerLedger',
+            filename: 'provider-ledger.js',
+            path: resolve(__dirname, 'dist'),
+        }
+    }
 ];
