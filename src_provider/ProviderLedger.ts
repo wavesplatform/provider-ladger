@@ -62,12 +62,8 @@ export class ProviderLedger implements Provider {
     private _ledgerRequestsCount: number = 0;
     private _providerConfig: IProviderLedgerConfig;
     // todo connect to network
-    private _options: ConnectOptions = {
-        NETWORK_BYTE: 'W'.charCodeAt(0),
-        NODE_URL: 'https://nodes.wavesplatform.com',
-    };
+    private _options?: ConnectOptions;
     private _ledgerConfig: IWavesLedgerConfig;
-    private _nodeBaseUrl: string;
 
     private _wavesLedger: WavesLedgerSync | null = null;
     private _wavesLedgerConnection: any | null = null;
@@ -82,7 +78,6 @@ export class ProviderLedger implements Provider {
             ...DEFAULT_WAVES_LEDGER_CONFIG,
             ...config?.wavesLedgerConfig
         };
-        this._nodeBaseUrl = getNodeBaseUrl(this._ledgerConfig.networkCode!);
 
         this._loadFonts();
         this.__log('constructor');
@@ -207,9 +202,10 @@ export class ProviderLedger implements Provider {
 
         const publicKey: string = this.user!.publicKey;
         const senderAddress: string = this.user!.address;
+        const nodeUrl = this._options!.NODE_URL;
 
-        const nodeTime = await fetchNodeTime(this._options.NODE_URL);
-        const balanceDetails = await fetchBalanceDetails(this._nodeBaseUrl, senderAddress);
+        const nodeTime = await fetchNodeTime(nodeUrl);
+        const balanceDetails = await fetchBalanceDetails(nodeUrl, senderAddress);
 
         const promiseList = Promise.all(
             list.map(async (tx: SignerTx): Promise<any> => {
@@ -307,7 +303,7 @@ export class ProviderLedger implements Provider {
         this.__log('_signMessage', data);
 
         const senderAddress: string = this.user!.address;
-        const balanceDetails = await fetchBalanceDetails(this._nodeBaseUrl, senderAddress);
+        const balanceDetails = await fetchBalanceDetails(this._options!.NODE_URL, senderAddress);
 
         closeDialog();
         showSignMessageDialog(
@@ -337,17 +333,6 @@ export class ProviderLedger implements Provider {
         ledgerSignPromiseWrapper.promise
             .then(() => closeDialog())
             .catch(() => closeDialog());
-            // .then((res) => {
-            //     this.__log('_signMessage :: result', res);
-
-            //     closeDialog();
-
-            //     return res;
-            // })
-            // .catch((er) => {
-            //     closeDialog()
-            //     return er;
-            // });
 
         return ledgerSignPromiseWrapper.promise;
     }
@@ -380,7 +365,11 @@ export class ProviderLedger implements Provider {
             //
         } else {
             showConnectingDialog(() => this.getConnectionState());
-            try { await this.initWavesLedger(); } catch (er) { console.error('login :: initWavesLedger', er); }
+            try {
+                await this.initWavesLedger();
+            } catch (er) {
+                console.error('login :: initWavesLedger', er);
+            }
         }
 
         this._connectingState = EConnectingState.OPEN_WAVES_APP;
@@ -471,7 +460,7 @@ export class ProviderLedger implements Provider {
             list.push(tx.assetId);
         }
 
-        let res: any = await fetchAssetsDetails(this._nodeBaseUrl, list);
+        let res: any = await fetchAssetsDetails(this._options!.NODE_URL, list);
         let assetsDetails;
 
         if (res[0] && res[0].assetId) {
