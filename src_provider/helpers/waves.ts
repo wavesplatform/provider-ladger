@@ -4,7 +4,12 @@ export const waves = {
     WAVES_SYMBOL: 'WAVES',
 
     format(amount: number, decimals?: number): number {
-        decimals = 10 ** (decimals || WAVES_DECIMALS);
+        if (decimals === undefined) {
+            decimals = WAVES_DECIMALS;
+        }
+
+        decimals = 10 ** decimals;
+
         let value = amount / decimals;
 
         if (value > 1) {

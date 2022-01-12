@@ -8,6 +8,7 @@ import {
     TypedData,
     UserData,
 } from '@waves/signer';
+import { fetchCalculateFee } from '@waves/node-api-js/es/api-node/transactions';
 import { fetchNodeTime } from '@waves/node-api-js/es/api-node/utils';
 import { fetchBalanceDetails } from '@waves/node-api-js/es/api-node/addresses';
 import { fetchAssetsDetails } from '@waves/node-api-js/es/api-node/assets';
@@ -15,7 +16,7 @@ import { IUser, WavesLedgerSync, IWavesLedgerConfig } from '@waves/ledger';
 import { makeTxBytes, signTx, serializeCustomData, libs } from '@waves/waves-transactions';
 
 import { ENetworkCode } from './interface';
-import { getNodeBaseUrl,
+import {
     isUserCancelError,
     signerTx2TxParams,
     getAssetInfoUrl,
@@ -152,6 +153,7 @@ export class ProviderLedger implements Provider {
         this.__log('connect', options);
 
         this._options = options;
+        this._ledgerConfig.networkCode = this._options!.NETWORK_BYTE;
 
         return Promise.resolve();
     }
@@ -215,10 +217,15 @@ export class ProviderLedger implements Provider {
                 const assetdDetails = await this.getAssetsDetails(tx);
                 const paymentsPrecision = this.getAmountPrecission(tx, assetdDetails);
 
+                if (!tx4ledger.fee) {
+                    const feeInfo = await fetchCalculateFee(this._options!.NODE_URL, tx4ledger as any);
+                    tx4ledger.fee = feeInfo.feeAmount;
+                }
+
                 /* TODO Magic fields for signTx */
                 tx4ledger.timestamp = nodeTime.NTP;
                 tx4ledger.senderPublicKey = publicKey;
-                tx4ledger.chainId = this._ledgerConfig.networkCode;
+                tx4ledger.chainId = this._options!.NETWORK_BYTE;
 
                 const signedTx = signTx(tx4ledger as any, 'dummy') as any; // TODO typing
 
@@ -467,7 +474,7 @@ export class ProviderLedger implements Provider {
             assetsDetails = res.map((details) => {
                 return {
                     ...details,
-                    assetInfoUrl: getAssetInfoUrl(this._ledgerConfig.networkCode!, details.assetId)
+                    assetInfoUrl: getAssetInfoUrl(this._options!.NETWORK_BYTE!, details.assetId)
                 };
             })
         }
@@ -487,6 +494,7 @@ export class ProviderLedger implements Provider {
                 precission[0] = WAVES_DECIMALS;
             } else {
                 const assetDetail = assetdDetails.find(details => details.assetId === assetId);
+
                 precission[0] = assetDetail.decimals;
             }
         } else if (tx.type = 16) {

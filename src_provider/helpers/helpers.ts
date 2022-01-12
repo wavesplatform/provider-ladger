@@ -2,7 +2,12 @@ import {
     SignerTx,
 } from '@waves/signer';
 
-import { ITransferParams, IInvokeScriptParams, WithSender, WithId } from '@waves/waves-transactions';
+import {
+    ITransferParams,
+    IInvokeScriptParams,
+    WithSender,
+    WithId
+} from '@waves/waves-transactions';
 
 import {
     waves
@@ -21,7 +26,7 @@ export const signerTx2TxParams = (signerTx: SignerTx): ISignerTx2TxParams => {
                 version: 2, // todo check default version
                 // default values
                 // timestamp: nodeTime.NTP,
-                fee: 500000,
+                // fee: 500000,
                 attachment: "",
                 // 
                 ...signerTx,
@@ -32,7 +37,7 @@ export const signerTx2TxParams = (signerTx: SignerTx): ISignerTx2TxParams => {
             tx = {
                 version: 2, // todo check default version
                 // timestamp: nodeTime.NTP,
-                fee: 500000,
+                // fee: 500000,
                 // feeAssetId: null,
                 ...signerTx,
                 type: (signerTx.type as TTxType), // todo

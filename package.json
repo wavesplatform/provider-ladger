@@ -1,15 +1,8 @@
 {
   "name": "@waves/provider-ledger",
-  "version": "0.1.2",
+  "version": "0.1.5",
   "main": "dist/provider-ledger.js",
   "types": "dist/index.d.ts",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/wavesplatform/provider-ledger.git"
-  },
-  "bugs": {
-    "url": "https://github.com/wavesplatform/provider-ledger/issues"
-  },
   "files": [
     "dist"
   ],

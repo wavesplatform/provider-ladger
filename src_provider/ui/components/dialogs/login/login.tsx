@@ -23,9 +23,9 @@ enum ELoginState {
 
 export interface ILoginComponentProps {
     ledger: WavesLedgerSync;
-    onLogin: (user: IUser) => void
     lastAuthUserId?: number;
     authUserList?: IUser[];
+    onLogin: (user: IUser) => void;
 }
 
 interface IloginComponentState {
@@ -238,7 +238,6 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
         }
 
         this.setState({ currentPage: page });
-        console.log(page);
     }
 
     onNextPage() {
@@ -255,6 +254,5 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
         }
 
         this.setState({ currentPage: page });
-        console.log(page);
     }
 }
