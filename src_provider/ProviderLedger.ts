@@ -217,7 +217,7 @@ export class ProviderLedger implements Provider {
                 const assetdDetails = await this.getAssetsDetails(tx);
                 const paymentsPrecision = this.getAmountPrecission(tx, assetdDetails);
 
-                if (!tx4ledger.fee) {
+                if (tx.type === 4 && !tx4ledger.fee) {
                     const feeInfo = await fetchCalculateFee(this._options!.NODE_URL, tx4ledger as any);
                     tx4ledger.fee = feeInfo.feeAmount;
                 }
