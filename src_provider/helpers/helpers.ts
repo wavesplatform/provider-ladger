@@ -1,17 +1,14 @@
-import {
-    SignerTx,
-} from '@waves/signer';
+import { SignerTx } from '@waves/signer';
 
 import {
     ITransferParams,
-    IInvokeScriptParams,
-    WithSender,
+    // IInvokeScriptParams,
+    // WithSender,
     WithId
 } from '@waves/waves-transactions';
+import { TRANSACTION_TYPE } from '@waves/ts-types';
 
-import {
-    waves
-} from './waves';
+import { waves } from './waves';
 
 // type TxParams = ITransferParams | IInvokeScriptParams;
 type ISignerTx2TxParams = ITransferParams & { type: TTxType, version: number } & WithId;
@@ -21,7 +18,7 @@ export const signerTx2TxParams = (signerTx: SignerTx): ISignerTx2TxParams => {
     let tx;
 
     switch (signerTx.type) {
-        case 4:
+        case TRANSACTION_TYPE.TRANSFER:
             tx = {
                 version: 2, // todo check default version
                 // default values
@@ -33,7 +30,7 @@ export const signerTx2TxParams = (signerTx: SignerTx): ISignerTx2TxParams => {
                 type: (signerTx.type as TTxType), // todo
             };
             break;
-        case 16:
+        case TRANSACTION_TYPE.INVOKE_SCRIPT:
             tx = {
                 version: 2, // todo check default version
                 // timestamp: nodeTime.NTP,
@@ -51,11 +48,11 @@ export const signerTx2TxParams = (signerTx: SignerTx): ISignerTx2TxParams => {
 };
 
 export const cleanTx = (tx: any) => {
-    if (tx.type === 4) {
+    if (tx.type === TRANSACTION_TYPE.TRANSFER) {
         if (tx.assetId === waves.WAVES_SYMBOL) {
             tx.assetId = null;
         }
-    } else if (tx.type === 16) {
+    } else if (tx.type === TRANSACTION_TYPE.INVOKE_SCRIPT) {
         if (tx.assetId === waves.WAVES_SYMBOL) {
             tx.assetId = null;
         }

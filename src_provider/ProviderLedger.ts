@@ -14,6 +14,7 @@ import { fetchBalanceDetails } from '@waves/node-api-js/es/api-node/addresses';
 import { fetchAssetsDetails } from '@waves/node-api-js/es/api-node/assets';
 import { IUser, WavesLedgerSync, IWavesLedgerConfig } from '@waves/ledger';
 import { makeTxBytes, signTx, serializeCustomData, libs } from '@waves/waves-transactions';
+import { TRANSACTION_TYPE } from '@waves/ts-types';
 
 import { ENetworkCode } from './interface';
 import {
@@ -217,15 +218,15 @@ export class ProviderLedger implements Provider {
                 const assetdDetails = await this.getAssetsDetails(tx);
                 const paymentsPrecision = this.getAmountPrecission(tx, assetdDetails);
 
-                if (tx.type === 4 && !tx4ledger.fee) {
-                    const feeInfo = await fetchCalculateFee(this._options!.NODE_URL, tx4ledger as any);
-                    tx4ledger.fee = feeInfo.feeAmount;
-                }
-
                 /* TODO Magic fields for signTx */
                 tx4ledger.timestamp = nodeTime.NTP;
                 tx4ledger.senderPublicKey = publicKey;
                 tx4ledger.chainId = this._options!.NETWORK_BYTE;
+
+                if (!tx4ledger.fee) {
+                    const feeInfo = await fetchCalculateFee(this._options!.NODE_URL, tx4ledger as any);
+                    tx4ledger.fee = feeInfo.feeAmount;
+                }
 
                 const signedTx = signTx(tx4ledger as any, 'dummy') as any; // TODO typing
 
@@ -487,7 +488,7 @@ export class ProviderLedger implements Provider {
         const precission = [0, 0];
         const payment = tx.payment;
 
-        if (tx.type === 4) {
+        if (tx.type === TRANSACTION_TYPE.TRANSFER) {
             const assetId = tx.assetId;
 
             if (assetId == null) {
@@ -497,7 +498,7 @@ export class ProviderLedger implements Provider {
 
                 precission[0] = assetDetail.decimals;
             }
-        } else if (tx.type = 16) {
+        } else if (tx.type == TRANSACTION_TYPE.INVOKE_SCRIPT) {
             if (payment?.length) {
                 for(let i = 0; i < payment.length; i++) {
                     const assetId = payment[i].assetId;
