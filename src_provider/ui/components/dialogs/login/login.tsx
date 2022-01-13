@@ -127,7 +127,7 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
         if(ledgerUserList?.length == 0) {
             return (
                 <Box className={styles.ledgerusers} col>
-                    <Text>Загрузка аккаунтов...</Text>
+                    <Text>Loading accounts...</Text>
                 </Box>
             );
         } else {
@@ -145,7 +145,7 @@ export class LoginComponent extends React.Component<ILoginComponentProps, Ilogin
                         <div className={styles.ledgeruserlistcontainer}>
                             <Box className={styles.ledgeruserlist} style={{ left: position }}>
                                 {ledgerUserList.map(this.renderLedgerUser, this)}
-                                <Box className={styles.loadingpage}><Text>Загрузка аккаунтов...</Text></Box>
+                                <Box className={styles.loadingpage}><Text>Loading accounts...</Text></Box>
                             </Box>
                         </div>
                     </Box>
