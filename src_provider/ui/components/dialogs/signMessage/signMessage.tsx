@@ -59,7 +59,7 @@ export class SignMessageComponent extends React.Component<ISignMessageComponentP
                 <Box className={styles.txdescription} col alignstart>
                     <Box>
                         {this.renderTxLogo()}
-                        <Text l descr>Sing Custom Data</Text>
+                        <Text l descr>Sign Custom Data</Text>
                     </Box>
                     <Tabs
                         items={[ESignTab.MAIN]}
