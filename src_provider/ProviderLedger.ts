@@ -55,7 +55,7 @@ const DEFAULT_WAVES_LEDGER_CONFIG: IWavesLedgerConfig = {
     openTimeout: 3000,
     listenTimeout: 30000,
     exchangeTimeout: 30000,
-    networkCode: ENetworkCode.MAINNET,
+    // networkCode: ENetworkCode.MAINNET, // get from ProviderLedger.connect params
     transport: HwTransportWebusb
 };
 
@@ -81,8 +81,12 @@ export class ProviderLedger implements Provider {
             ...config?.wavesLedgerConfig
         };
 
+        if (config?.wavesLedgerConfig?.networkCode) {
+            console.warn('[Deprecated] wavesLedgerConfig.networkCode is deprecated. networkCode will fetch from node');
+        }
+
         this._loadFonts();
-        this.__log('constructor');
+        this.__log('constructor', config);
     }
 
     public async login(): Promise<UserData> {
@@ -376,7 +380,7 @@ export class ProviderLedger implements Provider {
             try {
                 await this.initWavesLedger();
             } catch (er) {
-                console.error('login :: initWavesLedger', er);
+                console.error('initWavesLedger : error', er);
             }
         }
 
