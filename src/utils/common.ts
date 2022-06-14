@@ -21,3 +21,7 @@ export const sleep = (seconds: number): Promise<void> => {
 export const errorUserCancel = () => {
 	return new Error('User rejection!')
 }
+
+export const errorUserCancelConnect = () => {
+	return new Error('User reject connect Ledger!')
+}

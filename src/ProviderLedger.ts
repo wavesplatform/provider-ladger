@@ -25,6 +25,7 @@ import {
 } from './helpers';
 import {
 	errorUserCancel,
+	errorUserCancelConnect,
 	isSupportedBrowser,
 	promiseWrapper,
 	sleep
@@ -411,7 +412,7 @@ export class ProviderLedger implements Provider {
 				closeDialog();
 
 				if (isUserCanceled) {
-					// throw errorUserCancel(); // we can throw error
+					throw errorUserCancelConnect();
 				} else {
 					await showConnectionErrorDialog();
 					return this.insureWavesAppReady();
