@@ -40,6 +40,7 @@ import {
 } from './ui';
 import {
 	EConnectingState,
+	EAwaitingLedgerAppState,
 	IProviderLedgerConfig,
 	ProviderSignedTx,
 } from './ProviderLedger.interface';
@@ -58,7 +59,8 @@ const DEFAULT_WAVES_LEDGER_CONFIG: IWavesLedgerConfig = {
 };
 
 export class ProviderLedger implements Provider {
-	private _connectingState: EConnectingState;
+	private _connectingState: EConnectingState = EConnectingState.CONNECT_LEDGER
+	private _awaitinState: EAwaitingLedgerAppState = EAwaitingLedgerAppState.NONE;
 	private _ledgerRequestsCount: number = 0;
 	private _providerConfig: IProviderLedgerConfig;
 	// todo connect to network
@@ -72,7 +74,6 @@ export class ProviderLedger implements Provider {
 	public user: IUser | null = null;
 
 	constructor(config?: IProviderLedgerConfig) {
-		this._connectingState = EConnectingState.CONNECT_LEDGER;
 		this._providerConfig = config || DEFAULT_PROVIDER_CONFIG;
 		this._ledgerConfig = {
 			...DEFAULT_WAVES_LEDGER_CONFIG,
@@ -378,7 +379,10 @@ export class ProviderLedger implements Provider {
 		if(this.isLedgerInited()) {
 			//
 		} else {
-			showConnectingDialog(() => this.getConnectionState());
+			showConnectingDialog(
+				() => this.getConnectionState(),
+				() => this._awaitinState = EAwaitingLedgerAppState.USER_CANCELED
+			);
 			try {
 				await this.initWavesLedger();
 			} catch (er) {
@@ -393,15 +397,27 @@ export class ProviderLedger implements Provider {
 			this._connectingState = EConnectingState.READY;
 			return true;
 		} else {
-			showConnectingDialog(() => this.getConnectionState());
+			showConnectingDialog(
+				() => this.getConnectionState(),
+				() => this._awaitinState = EAwaitingLedgerAppState.USER_CANCELED
+			);
 			let isReady: boolean = false;
+			this._awaitinState = EAwaitingLedgerAppState.TRYING_TO_CONNECT;
 			isReady = await this.awaitingWavesApp();
+			const isUserCanceled = this._awaitinState = EAwaitingLedgerAppState.USER_CANCELED;
+			this._awaitinState = EAwaitingLedgerAppState.FINISHED;
 
 			if (!isReady) {
 				closeDialog();
-				await showConnectionErrorDialog();
-				return this.insureWavesAppReady();
+
+				if (isUserCanceled) {
+					// throw errorUserCancel(); // we can throw error
+				} else {
+					await showConnectionErrorDialog();
+					return this.insureWavesAppReady();
+				}
 			} else {
+				this._awaitinState = EAwaitingLedgerAppState.FINISHED;
 				return true;
 			}
 		}
@@ -416,16 +432,20 @@ export class ProviderLedger implements Provider {
 
 		while(!isAppReady) {
 			if (count >= TRY_COUNT) {
-				return false;
+				break;
 			}
 
 			count++;
 			await sleep(TRY_DELAY);
 
-			isAppReady = await this.isWavesAppReady();
+			if (this._awaitinState === EAwaitingLedgerAppState.TRYING_TO_CONNECT) {
+				isAppReady = await this.isWavesAppReady();
+			} else {
+				break;
+			}
 		}
 
-		return true;
+		return isAppReady;
 	}
 
 	private isLedgerInited(): boolean {
@@ -433,7 +453,6 @@ export class ProviderLedger implements Provider {
 	}
 
 	private isWavesAppReady(): Promise<boolean> {
-
 		if (this._wavesLedger === null) {
 			return Promise.resolve(false);
 		}
