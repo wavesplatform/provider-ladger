@@ -140,12 +140,13 @@ export const showSignMessageDialog = (
 	renderInContainer(reactElement, true);
 }
 
-export const showConnectingDialog = (getState: () => EConnectingState) => {
+export const showConnectingDialog = (getState: () => EConnectingState, onClose: () => void) => {
 	const reactElement = React.createElement<IConnectingProps>(ConnectingComponent, {
-		getState: getState
+		getState: getState,
+		onClose: onClose
 	});
 
-	renderInContainer(reactElement);
+	renderInContainer(reactElement, true);
 }
 
 export const showConnectionErrorDialog = async (): Promise<void> => {

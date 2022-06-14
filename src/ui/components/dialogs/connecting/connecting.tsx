@@ -2,6 +2,7 @@ import React from 'react';
 
 import {
 	Box,
+	ButtonIconClose,
 	SvgLedgerLogo,
 	Loader,
 	Text,
@@ -12,7 +13,8 @@ import { EConnectingState } from '../../../../ProviderLedger.interface';
 import styles from './styles.less';
 
 export interface IConnectingProps {
-	getState: () => EConnectingState
+	getState: () => EConnectingState;
+	onClose: () => void;
 };
 
 interface IConnectingState {
@@ -36,6 +38,7 @@ export class ConnectingComponent extends React.Component<IConnectingProps, IConn
 
 		return (
 			<Box className={styles.component} col>
+				<ButtonIconClose className={styles.close} onClick={() => this.onClose()} />
 				<Box className={styles.ledgerlogo}><SvgLedgerLogo /></Box>
 				<Text className={styles.title} xl>Connecting...</Text>
 				<Box col alignstart>
@@ -65,5 +68,9 @@ export class ConnectingComponent extends React.Component<IConnectingProps, IConn
 		//     case EConnectingState.OPEN_WAVES_APP:
 		//     case EConnectingState.READY: return 'Open WAVES application';
 		// }
+	}
+
+	onClose() {
+		this.props.onClose();
 	}
 }

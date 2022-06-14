@@ -11,6 +11,13 @@ export enum EConnectingState {
 	READY = 3
 };
 
+export enum EAwaitingLedgerAppState {
+	NONE = 1,
+	TRYING_TO_CONNECT = 2,
+	FINISHED = 3,
+	USER_CANCELED = 4,
+}
+
 export interface IProviderLedgerConfig {
 	debug?: boolean;
 	wavesLedgerConfig?: IWavesLedgerConfig;
