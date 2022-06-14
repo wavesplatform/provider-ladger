@@ -1,0 +1,21 @@
+.component {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	bottom: 0px;
+	right: 0px;
+	overflow-y: scroll;
+
+	background: rgba(0, 0, 0, .5);
+	z-index: 999;
+}
+
+@media (max-height: 700px) {
+	.component {
+		align-items: flex-start;
+		padding: 32px;
+	}
+}
