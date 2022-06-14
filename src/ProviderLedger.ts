@@ -108,6 +108,11 @@ export class ProviderLedger implements Provider {
 	public async logout(): Promise<void> {
 		this.__log('logout');
 
+		if (this._wavesLedger) {
+			await this._wavesLedger.disconnect();
+			this._wavesLedger = null;
+		}
+
 		this.user = null;
 		this.__log('logout : success');
 	}
