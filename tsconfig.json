@@ -1,24 +1,23 @@
 {
-  "compilerOptions": {
-    "target": "es2017",
-    "module": "ESNext",
-    "lib": ["dom", "esnext"],
-    "moduleResolution": "node",
-    "sourceMap": false,
-    "declaration": true,
-    "outDir": "./dist",
-    "strict": true,
-    "allowSyntheticDefaultImports": true,
-    "jsx": "react",
-    "noImplicitAny": false
-  },
-  "include": [
-    "src_provider"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "../waves-js",
-    "src"
-  ]
+	"compilerOptions": {
+		"target": "es2017",
+		"module": "ESNext",
+		"lib": ["dom", "esnext"],
+		"moduleResolution": "node",
+		"sourceMap": false,
+		"declaration": true,
+		"outDir": "./dist",
+		"strict": true,
+		"allowSyntheticDefaultImports": true,
+		"jsx": "react",
+		"noImplicitAny": false
+	},
+	"include": [
+		"src"
+	],
+	"exclude": [
+		"node_modules",
+		"dist",
+		"src_legacy"
+	]
 }
