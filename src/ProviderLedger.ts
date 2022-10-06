@@ -494,18 +494,20 @@ export class ProviderLedger implements Provider {
 			list.push(tx.assetId);
 		}
 
-		let res: any = await fetchAssetsDetails(this._options!.NODE_URL, list);
-		let assetsDetails;
+		let assetsDetails = [];
 
-		if (res[0] && res[0].assetId) {
-			assetsDetails = res.map((details) => {
-				return {
-					...details,
-					assetInfoUrl: getAssetInfoUrl(this._options!.NETWORK_BYTE!, details.assetId)
-				};
-			})
+		if (list.length) {
+			const res: any = await fetchAssetsDetails(this._options!.NODE_URL, list);
+
+			if (res[0] && res[0].assetId) {
+				assetsDetails = res.map((details) => {
+					return {
+						...details,
+						assetInfoUrl: getAssetInfoUrl(this._options!.NETWORK_BYTE!, details.assetId)
+					};
+				})
+			}
 		}
-
 		return assetsDetails;
 	}
 
